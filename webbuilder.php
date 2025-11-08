@@ -134,3 +134,21 @@ function webbuilder_auto_assign_canvas_template( $post_id, $post, $update ) {
         update_post_meta( $post_id, '_wp_page_template', 'webbuilder-canvas.php' );
     }
 }
+
+add_action( 'wp_enqueue_scripts', 'webbuilder_enqueue_tailwind_styles' );
+
+/**
+ * Ensure Tailwind CSS is available on the front end for Webbuilder content.
+ */
+function webbuilder_enqueue_tailwind_styles() {
+    if ( ! is_singular() ) {
+        return;
+    }
+
+    wp_enqueue_style(
+        'webbuilder-tailwind',
+        'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
+        [],
+        '2.2.19'
+    );
+}
