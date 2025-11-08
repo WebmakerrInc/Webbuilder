@@ -35,3 +35,27 @@
 .grapesjs-status--error {
   color: #d63638;
 }
+
+#gjs {
+  height: 100vh !important;
+  border: 1px solid #444;
+}
+
+.gjs-cv-canvas {
+  background-color: #fff;
+}
+
+.gjs-frame,
+.gjs-cv-canvas iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .gjs-cv-canvas iframe {
+    width: 100%;
+    height: auto;
+  }
+}
+

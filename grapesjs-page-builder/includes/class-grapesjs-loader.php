@@ -55,8 +55,8 @@ class Loader {
 
     public function register_assets(): void {
         wp_register_style(
-            'grapesjs-core',
-            $this->plugin_url( 'assets/js/grapesjs/grapes.min.css' ),
+            'grapesjs-icons',
+            $this->plugin_url( 'assets/js/grapesjs/css/grapes.min.css' ),
             [],
             self::GRAPESJS_VERSION
         );
@@ -104,6 +104,14 @@ class Loader {
         );
 
         wp_register_script(
+            'grapesjs-style-flexbox',
+            $this->plugin_url( 'assets/js/grapesjs/plugins/grapesjs-style-flexbox.min.js' ),
+            [ 'grapesjs-core' ],
+            '1.0.1',
+            true
+        );
+
+        wp_register_script(
             'grapesjs-page-builder-init',
             $this->plugin_url( 'assets/js/grapesjs-init.js' ),
             [
@@ -112,6 +120,7 @@ class Loader {
                 'grapesjs-plugin-forms',
                 'grapesjs-navbar',
                 'grapesjs-component-countdown',
+                'grapesjs-style-flexbox',
             ],
             self::VERSION,
             true
@@ -120,18 +129,19 @@ class Loader {
         wp_register_style(
             'grapesjs-page-builder-admin',
             $this->plugin_url( 'assets/css/admin.css' ),
-            [ 'grapesjs-core' ],
+            [ 'grapesjs-icons' ],
             self::VERSION
         );
     }
 
     public function enqueue_editor_assets(): void {
-        wp_enqueue_style( 'grapesjs-core' );
+        wp_enqueue_style( 'grapesjs-icons', plugin_dir_url( __FILE__ ) . '../assets/js/grapesjs/css/grapes.min.css' );
         wp_enqueue_script( 'grapesjs-core' );
         wp_enqueue_script( 'grapesjs-blocks-basic' );
         wp_enqueue_script( 'grapesjs-plugin-forms' );
         wp_enqueue_script( 'grapesjs-navbar' );
         wp_enqueue_script( 'grapesjs-component-countdown' );
+        wp_enqueue_script( 'grapesjs-style-flexbox' );
         wp_enqueue_script( 'grapesjs-page-builder-init' );
     }
 
