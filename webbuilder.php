@@ -69,3 +69,68 @@ function webbuilder_get_template_selector_data() {
 
     return apply_filters( 'webbuilder/template_selector_data', $data );
 }
+
+add_filter( 'theme_page_templates', 'webbuilder_register_canvas_template' );
+
+/**
+ * Add the Webbuilder canvas template to the available page templates.
+ *
+ * @param array<string, string> $templates Theme templates.
+ *
+ * @return array<string, string>
+ */
+function webbuilder_register_canvas_template( $templates ) {
+    $templates['webbuilder-canvas.php'] = __( 'Webbuilder Canvas', 'webbuilder' );
+
+    return $templates;
+}
+
+add_filter( 'page_template', 'webbuilder_use_canvas_template' );
+
+/**
+ * Resolve the Webbuilder canvas template path when assigned to a page.
+ *
+ * @param string $template Current template path.
+ *
+ * @return string
+ */
+function webbuilder_use_canvas_template( $template ) {
+    if ( is_singular( 'page' ) ) {
+        $page_template = get_page_template_slug( get_queried_object_id() );
+
+        if ( 'webbuilder-canvas.php' === $page_template ) {
+            $plugin_template = WEBBUILDER_PLUGIN_DIR . 'templates/webbuilder-canvas.php';
+
+            if ( file_exists( $plugin_template ) ) {
+                return $plugin_template;
+            }
+        }
+    }
+
+    return $template;
+}
+
+add_action( 'save_post_page', 'webbuilder_auto_assign_canvas_template', 10, 3 );
+
+/**
+ * Automatically assign the Webbuilder canvas template when saving via Webbuilder.
+ *
+ * @param int     $post_id Post ID.
+ * @param WP_Post $post    Post object.
+ * @param bool    $update  Whether this is an existing post being updated.
+ */
+function webbuilder_auto_assign_canvas_template( $post_id, $post, $update ) {
+    unset( $update );
+
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        return;
+    }
+
+    if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+        return;
+    }
+
+    if ( isset( $_POST['_webbuilder_used'] ) && '1' === $_POST['_webbuilder_used'] ) {
+        update_post_meta( $post_id, '_wp_page_template', 'webbuilder-canvas.php' );
+    }
+}
