@@ -287,7 +287,22 @@
             return;
           }
 
-          if (typeof window.wp === 'undefined' || !window.wp.apiRequest) {
+          var wpApi = typeof window.wp !== 'undefined' ? window.wp : null;
+          var apiFetch = null;
+
+          if (wpApi) {
+            if (wpApi.apiFetch) {
+              apiFetch = function (options) {
+                return wpApi.apiFetch(options);
+              };
+            } else if (wpApi.apiRequest) {
+              apiFetch = function (options) {
+                return wpApi.apiRequest(options);
+              };
+            }
+          }
+
+          if (!apiFetch) {
             window.alert('WordPress API is not available.');
             return;
           }
@@ -318,8 +333,7 @@
             btn.addEventListener('click', function (event) {
               var layout = event.target.getAttribute('data-layout');
 
-              window.wp
-                .apiRequest({ path: '/webbuilder/v1/layout/' + layout })
+              apiFetch({ path: '/webbuilder/v1/layout/' + layout })
                 .then(function (response) {
                   if (!response) {
                     return;
