@@ -1,6 +1,18 @@
 (function () {
   'use strict';
 
+  var plugin_dir = (function () {
+    if (typeof window.plugin_dir === 'string') {
+      return window.plugin_dir;
+    }
+
+    if (window.plugin_dir && typeof window.plugin_dir.url === 'string') {
+      return window.plugin_dir.url;
+    }
+
+    return '';
+  })();
+
   var getStrings = function () {
     var defaults = {
       saveSuccess: 'Saved successfully.',
@@ -183,6 +195,16 @@
         fromElement: true,
         height: '100vh',
         width: 'auto',
+        canvas: {
+          styles: [
+            plugin_dir + 'assets/js/grapesjs/css/grapes.min.css',
+            plugin_dir + 'assets/css/admin.css',
+            'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
+          ],
+          scripts: [
+            'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
+          ],
+        },
         storageManager: false,
         noticeOnUnload: false,
         plugins: [
