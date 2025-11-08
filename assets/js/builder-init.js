@@ -9,22 +9,47 @@ document.addEventListener('DOMContentLoaded', () => {
     plugins: ['gjs-blocks-basic'],
     canvas: {
       styles: [
-        'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css'
+        // Tailwind for design
+        'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
+        // Font Awesome for icons
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
       ]
     }
   });
 
-  // Remove only unsafe panels
-  editor.Panels.removeButton('options', 'export-template');
-  editor.Panels.removeButton('options', 'gjs-open-import-webpage');
-  editor.Panels.removeButton('options', 'gjs-open-templates');
-  editor.Panels.removeButton('views', 'open-sm');  // style manager
-  editor.Panels.removeButton('views', 'open-layers');
-  editor.Panels.removeButton('views', 'open-tm');  // trait manager
+  /* ---------- Restore Device Manager ---------- */
+  const panelManager = editor.Panels;
+  const devices = editor.Devices;
+  devices.add({ id: 'desktop', name: 'Desktop', width: '' });
+  devices.add({ id: 'tablet', name: 'Tablet', width: '768px' });
+  devices.add({ id: 'mobile', name: 'Mobile', width: '375px' });
 
-  // Keep block manager + device manager
-  editor.Panels.getButton('views', 'open-blocks').set('active', true);
+  panelManager.addPanel({
+    id: 'device-switcher',
+    el: document.createElement('div'),
+    buttons: [
+      { id: 'desktop', label: '<i class="fa fa-desktop"></i>', command: () => devices.select('desktop') },
+      { id: 'tablet',  label: '<i class="fa fa-tablet"></i>',  command: () => devices.select('tablet') },
+      { id: 'mobile',  label: '<i class="fa fa-mobile"></i>',  command: () => devices.select('mobile') }
+    ]
+  });
+
+  /* ---------- Disable unsafe panels ---------- */
+  panelManager.removeButton('options', 'export-template');
+  panelManager.removeButton('options', 'gjs-open-import-webpage');
+  panelManager.removeButton('options', 'gjs-open-templates');
+  panelManager.removeButton('views', 'open-sm');
+  panelManager.removeButton('views', 'open-layers');
+  panelManager.removeButton('views', 'open-tm');
+  // Keep block panel visible
+  editor.on('load', () => {
+    const btn = panelManager.getButton('views', 'open-blocks');
+    btn && btn.set('active', true);
+  });
+
   const blockManager = editor.BlockManager;
+
+  /* ---------- Your predefined blocks ---------- */
 
   // Hero Section
   blockManager.add('hero', {
@@ -610,60 +635,57 @@ blockManager.add('contact', {
     </footer>
   `
 });
-// Load Layouts Start
-
- // ---- Load Pre-made Layouts ----
-editor.Panels.addButton('options', [{
-  id: 'load-layouts',
-  className: 'fa fa-folder-open',
-  attributes: { title: 'Load Layout' },
-  command: 'open-layouts'
-}]);
-
-editor.Commands.add('open-layouts', {
-  run: function(ed) {
-    const panel = document.createElement('div');
-    panel.style.position = 'fixed';
-    panel.style.top = '50%';
-    panel.style.left = '50%';
-    panel.style.transform = 'translate(-50%, -50%)';
-    panel.style.background = '#fff';
-    panel.style.padding = '20px';
-    panel.style.border = '1px solid #ccc';
-    panel.style.zIndex = '9999';
-    panel.innerHTML = `
-      <h3 style="margin-bottom:10px;">Select a Layout</h3>
-      <button data-layout="home">Home</button>
-      <button data-layout="about">About</button>
-      <button data-layout="services">Services</button>
-      <button id="close-layouts" style="float:right;">Close</button>
-    `;
-    document.body.appendChild(panel);
-
-    panel.querySelectorAll('button[data-layout]').forEach(btn => {
-      btn.addEventListener('click', e => {
-        const layout = e.target.getAttribute('data-layout');
-        wp.apiRequest({ path: '/webbuilder/v1/layout/' + layout }).done(res => {
-          ed.setComponents(res.html);
-          ed.setStyle(res.css || '');
-          alert('Layout loaded!');
-        });
-      });
-    });
-    panel.querySelector('#close-layouts').addEventListener('click', () => panel.remove());
-  }
-});
-
-  // Load Layouts ends
-  // Save button
-  editor.Panels.addButton('options',[{
-    id:'save',
-    className:'fa fa-floppy-o',
-    command:'save-db',
-    attributes:{ title:'Save to WordPress' }
+  /* ---------- Load layouts button ---------- */
+  panelManager.addButton('options', [{
+    id: 'load-layouts',
+    className: 'fa fa-folder-open',
+    attributes: { title: 'Load Layout' },
+    command: 'open-layouts'
   }]);
 
-  // Load existing content if available
+  editor.Commands.add('open-layouts', {
+    run: function (ed) {
+      const panel = document.createElement('div');
+      panel.style.position = 'fixed';
+      panel.style.top = '50%';
+      panel.style.left = '50%';
+      panel.style.transform = 'translate(-50%, -50%)';
+      panel.style.background = '#fff';
+      panel.style.padding = '20px';
+      panel.style.border = '1px solid #ccc';
+      panel.style.zIndex = '9999';
+      panel.innerHTML = `
+        <h3 style="margin-bottom:10px;">Select a Layout</h3>
+        <button data-layout="home">Home</button>
+        <button data-layout="about">About</button>
+        <button data-layout="services">Services</button>
+        <button id="close-layouts" style="float:right;">Close</button>
+      `;
+      document.body.appendChild(panel);
+
+      panel.querySelectorAll('button[data-layout]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const layout = e.target.getAttribute('data-layout');
+          wp.apiRequest({ path: '/webbuilder/v1/layout/' + layout }).done(res => {
+            ed.setComponents(res.html);
+            ed.setStyle(res.css || '');
+            alert('Layout loaded!');
+          });
+        });
+      });
+      panel.querySelector('#close-layouts').addEventListener('click', () => panel.remove());
+    }
+  });
+
+  /* ---------- Save button ---------- */
+  panelManager.addButton('options', [{
+    id: 'save',
+    className: 'fa fa-floppy-o',
+    command: 'save-db',
+    attributes: { title: 'Save to WordPress' }
+  }]);
+
+  /* ---------- Load existing content ---------- */
   wp.apiRequest({ path: `/wp/v2/pages/${postId}` }).done(p => {
     const html = p.meta?._webbuilder_html || '';
     const css  = p.meta?._webbuilder_css  || '';
@@ -671,19 +693,19 @@ editor.Commands.add('open-layouts', {
     if (css)  editor.setStyle(css);
   });
 
-  // Save logic
-  editor.Commands.add('save-db',{
-    run:(ed,s)=>{
-      s&&s.set('active');
+  /* ---------- Save logic ---------- */
+  editor.Commands.add('save-db', {
+    run: (ed, s) => {
+      s && s.set('active');
       wp.apiRequest({
-        path:'/webbuilder/v1/save',
-        method:'POST',
-        data:{
-          post_id:postId,
-          html:ed.getHtml(),
-          css:ed.getCss()
+        path: '/webbuilder/v1/save',
+        method: 'POST',
+        data: {
+          post_id: postId,
+          html: ed.getHtml(),
+          css: ed.getCss()
         }
-      }).done(()=>alert('Saved!'));
+      }).done(() => alert('Saved!'));
     }
   });
 });
