@@ -220,10 +220,16 @@ class Webbuilder_Content {
             return;
         }
 
+        $sanitized_css = wp_strip_all_tags( $css, false );
+
+        if ( '' === $sanitized_css ) {
+            return;
+        }
+
         printf(
             '<style id="webbuilder-styles-%1$d">%2$s</style>' . "\n",
             esc_attr( $post_id ),
-            esc_html( $css )
+            $sanitized_css
         );
     }
 
