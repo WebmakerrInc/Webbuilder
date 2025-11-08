@@ -6,6 +6,7 @@
  * @var int    $post_id
  * @var string $post_content
  * @var string $post_title
+ * @var string $post_css
  *
  * @package GrapesJS\PageBuilder
  */
@@ -50,6 +51,7 @@ $is_editing_post = $post_id > 0;
             data-grapesjs-editor
             data-editor-height="78vh"
             data-post-id="<?php echo esc_attr( $post_id ); ?>"
+            data-initial-css="<?php echo esc_attr( $post_css ); ?>"
             <?php if ( $is_editing_post ) : ?>data-save-button="#grapesjs-save-button" data-save-status="#grapesjs-save-status"<?php endif; ?>
             style="min-height: 78vh;"
         >

@@ -54,6 +54,8 @@
       var height = container.dataset.editorHeight || '75vh';
       var storageId = container.dataset.storageId || container.id;
 
+      var initialCss = container.dataset.initialCss || '';
+
       var editor = window.grapesjs.init({
         container: '#' + container.id,
         fromElement: true,
@@ -95,6 +97,7 @@
           params.append('nonce', window.grapesjsPageBuilder.nonce || '');
           params.append('post_id', String(postId));
           params.append('content', editor.getHtml());
+          params.append('css', editor.getCss());
 
           fetch(window.grapesjsPageBuilder.ajaxUrl, {
             method: 'POST',
@@ -133,6 +136,15 @@
 
       container.dataset.gjsInit = 'true';
       container.__grapesjsInstance = editor;
+
+      if (initialCss) {
+        var applyInitialCss = function () {
+          editor.setStyle(initialCss);
+        };
+
+        editor.on('load', applyInitialCss);
+        applyInitialCss();
+      }
     });
   };
 

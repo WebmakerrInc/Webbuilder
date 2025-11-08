@@ -67,6 +67,7 @@ class Admin {
         $post_id      = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $post_content = '';
         $post_title   = '';
+        $post_css     = '';
 
         if ( $post_id > 0 ) {
             if ( ! current_user_can( 'edit_post', $post_id ) ) {
@@ -78,6 +79,7 @@ class Admin {
             if ( $post instanceof \WP_Post ) {
                 $post_content = get_post_field( 'post_content', $post_id );
                 $post_title   = get_the_title( $post_id );
+                $post_css     = get_post_meta( $post_id, '_grapesjs_css', true );
             } else {
                 wp_die( esc_html__( 'The requested page could not be found.', 'grapesjs-page-builder' ) );
             }
@@ -88,6 +90,7 @@ class Admin {
             'post_id' => $post_id,
             'post_content' => $post_content,
             'post_title' => $post_title,
+            'post_css' => $post_css,
         ] );
     }
 

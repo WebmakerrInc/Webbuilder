@@ -30,6 +30,20 @@ function grapesjs_page_builder() {
 grapesjs_page_builder();
 
 /**
+ * Sanitize CSS submitted from the GrapesJS editor.
+ *
+ * @param string $css Raw CSS string.
+ *
+ * @return string
+ */
+function grapesjs_page_builder_sanitize_css( string $css ): string {
+    $css = wp_unslash( $css );
+    $css = wp_kses( $css, [] );
+
+    return trim( $css );
+}
+
+/**
  * Handle saving GrapesJS content via AJAX.
  */
 function grapesjs_page_builder_save_content(): void {
@@ -50,6 +64,7 @@ function grapesjs_page_builder_save_content(): void {
     }
 
     $content = isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '';
+    $css     = isset( $_POST['css'] ) ? grapesjs_page_builder_sanitize_css( $_POST['css'] ) : '';
 
     $result = wp_update_post(
         [
@@ -63,7 +78,42 @@ function grapesjs_page_builder_save_content(): void {
         wp_send_json_error( [ 'message' => $result->get_error_message() ], 500 );
     }
 
+    if ( '' !== $css ) {
+        update_post_meta( $post_id, '_grapesjs_css', $css );
+    } else {
+        delete_post_meta( $post_id, '_grapesjs_css' );
+    }
+
     wp_send_json_success( [ 'message' => __( 'Content saved.', 'grapesjs-page-builder' ) ] );
 }
 
 add_action( 'wp_ajax_grapesjs_save_content', 'grapesjs_page_builder_save_content' );
+
+/**
+ * Print saved GrapesJS CSS on the front end.
+ */
+function grapesjs_page_builder_print_saved_css(): void {
+    if ( is_admin() ) {
+        return;
+    }
+
+    if ( ! is_singular() ) {
+        return;
+    }
+
+    $post_id = get_queried_object_id();
+
+    if ( ! $post_id ) {
+        return;
+    }
+
+    $css = get_post_meta( $post_id, '_grapesjs_css', true );
+
+    if ( '' === $css ) {
+        return;
+    }
+
+    echo '<style id="grapesjs-page-builder-styles">' . esc_html( (string) $css ) . '</style>';
+}
+
+add_action( 'wp_head', 'grapesjs_page_builder_print_saved_css' );
