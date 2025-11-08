@@ -63,6 +63,7 @@
           'grapesjs-plugin-forms',
           'grapesjs-navbar',
           'grapesjs-component-countdown',
+          'grapesjs-style-flexbox',
         ],
         pluginsOpts: {
           'gjs-blocks-basic': {
