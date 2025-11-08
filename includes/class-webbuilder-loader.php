@@ -83,3 +83,21 @@ add_action(
         );
     }
 );
+
+add_action(
+    'admin_enqueue_scripts',
+    function ( $hook ) {
+        if ( 'toplevel_page_webbuilder' !== $hook ) {
+            return;
+        }
+
+        if ( ! wp_script_is( 'webbuilder-init', 'enqueued' ) && ! wp_script_is( 'webbuilder-init', 'registered' ) ) {
+            return;
+        }
+
+        $plugin_base_url = defined( 'WEBBUILDER_PLUGIN_URL' ) ? WEBBUILDER_PLUGIN_URL : plugin_dir_url( __FILE__ );
+
+        wp_localize_script( 'webbuilder-init', 'plugin_dir', $plugin_base_url );
+    },
+    20
+);
