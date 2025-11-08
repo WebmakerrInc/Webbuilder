@@ -15,6 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const panels = editor.Panels;
 
+  // Disable all raw code editing, but keep block panel
+  const disableRawEditing = () => {
+    panels.removeButton('options', 'export-template');
+    panels.removeButton('options', 'gjs-open-import-webpage');
+    panels.removeButton('options', 'gjs-open-templates');
+    panels.removeButton('views', 'open-sm');
+    panels.removeButton('views', 'open-layers');
+    panels.removeButton('views', 'open-tm');
+    panels.removeButton('options', 'gjs-open-import-template');
+    panels.removeButton('options', 'gjs-open-code');
+  };
+
+  disableRawEditing();
+
+  panels.addPanel({
+    id: 'blocks',
+    el: '.gjs-pn-views-container',
+  });
+
   const commandsToRemove = [
     'gjs-open-import-template',
     'gjs-open-import-webpage',
@@ -26,15 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   commandsToRemove.forEach(cmd => editor.Commands.remove(cmd));
 
   editor.on('load', () => {
-    panels.removeButton('options', 'export-template');
-    panels.removeButton('options', 'gjs-open-import-webpage');
-    panels.removeButton('options', 'gjs-open-import-template');
-    panels.removeButton('options', 'gjs-open-templates');
-    panels.removeButton('options', 'gjs-open-code');
-    panels.removeButton('views', 'open-sm');
-    panels.removeButton('views', 'open-layers');
-    panels.removeButton('views', 'open-tm');
-    panels.removePanel('devices-c');
+    disableRawEditing();
 
     const styleManager = editor.StyleManager;
     if (styleManager) {
