@@ -145,6 +145,18 @@ function webbuilder_enqueue_tailwind_styles() {
         return;
     }
 
+    $post_id = get_queried_object_id();
+
+    if ( ! $post_id ) {
+        return;
+    }
+
+    $page_template = get_post_meta( $post_id, '_wp_page_template', true );
+
+    if ( 'webbuilder-canvas.php' !== $page_template ) {
+        return;
+    }
+
     wp_enqueue_style(
         'webbuilder-tailwind',
         'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
