@@ -70,6 +70,46 @@ function webbuilder_get_template_selector_data() {
     return apply_filters( 'webbuilder/template_selector_data', $data );
 }
 
+/**
+ * Starter template definitions for headers and footers.
+ *
+ * @return array<string, array<string, array<string, string>>>
+ */
+function webbuilder_get_starter_templates() {
+    $templates = [
+        'headers' => [
+            'classic'  => [
+                'label' => __( 'Classic', 'webbuilder' ),
+                'file'  => 'templates-library/headers/classic.html',
+            ],
+            'centered' => [
+                'label' => __( 'Centered', 'webbuilder' ),
+                'file'  => 'templates-library/headers/centered.html',
+            ],
+            'minimal'  => [
+                'label' => __( 'Minimal', 'webbuilder' ),
+                'file'  => 'templates-library/headers/minimal.html',
+            ],
+        ],
+        'footers' => [
+            'basic'    => [
+                'label' => __( 'Basic Columns', 'webbuilder' ),
+                'file'  => 'templates-library/footers/basic.html',
+            ],
+            'centered' => [
+                'label' => __( 'Centered', 'webbuilder' ),
+                'file'  => 'templates-library/footers/centered.html',
+            ],
+            'minimal'  => [
+                'label' => __( 'Minimal', 'webbuilder' ),
+                'file'  => 'templates-library/footers/minimal.html',
+            ],
+        ],
+    ];
+
+    return apply_filters( 'webbuilder/starter_templates', $templates );
+}
+
 add_filter( 'theme_page_templates', 'webbuilder_register_canvas_template' );
 
 /**
@@ -132,6 +172,135 @@ function webbuilder_auto_assign_canvas_template( $post_id, $post, $update ) {
 
     if ( isset( $_POST['_webbuilder_used'] ) && '1' === $_POST['_webbuilder_used'] ) {
         update_post_meta( $post_id, '_wp_page_template', 'webbuilder-canvas.php' );
+    }
+}
+
+add_action( 'add_meta_boxes', 'webbuilder_register_assignment_meta_box' );
+
+/**
+ * Register assignment meta boxes for header and footer templates.
+ */
+function webbuilder_register_assignment_meta_box() {
+    $post_types = [ 'webbuilder_header', 'webbuilder_footer' ];
+
+    foreach ( $post_types as $post_type ) {
+        add_meta_box(
+            'webbuilder_assignment_' . $post_type,
+            __( 'Header/Footer Assignment', 'webbuilder' ),
+            'webbuilder_render_assignment_meta_box',
+            $post_type,
+            'side',
+            'default'
+        );
+    }
+}
+
+/**
+ * Render the assignment meta box.
+ *
+ * @param WP_Post $post Current post object.
+ */
+function webbuilder_render_assignment_meta_box( $post ) {
+    if ( ! $post instanceof WP_Post ) {
+        return;
+    }
+
+    wp_nonce_field( 'webbuilder_assign_template', 'webbuilder_assign_nonce' );
+
+    $assign_all     = (int) get_post_meta( $post->ID, '_assign_all', true );
+    $assigned_pages = get_post_meta( $post->ID, '_assigned_pages', true );
+
+    if ( ! is_array( $assigned_pages ) ) {
+        $assigned_pages = [];
+    }
+
+    $assigned_pages = array_map( 'absint', $assigned_pages );
+
+    echo '<p><label><input type="checkbox" name="webbuilder_assign_all" value="1" ' . checked( 1, $assign_all, false ) . ' /> ' . esc_html__( 'Apply to all pages', 'webbuilder' ) . '</label></p>';
+    echo '<p><strong>' . esc_html__( 'Or select specific pages:', 'webbuilder' ) . '</strong></p>';
+
+    $pages = get_posts(
+        [
+            'post_type'        => 'page',
+            'post_status'      => [ 'publish', 'draft', 'pending', 'private' ],
+            'numberposts'      => -1,
+            'orderby'          => 'title',
+            'order'            => 'ASC',
+            'suppress_filters' => false,
+        ]
+    );
+
+    if ( ! empty( $pages ) ) {
+        echo '<div class="webbuilder-assignment-list">';
+
+        foreach ( $pages as $page ) {
+            $page_id    = (int) $page->ID;
+            $page_title = $page->post_title ? $page->post_title : sprintf( __( '(no title) – ID %d', 'webbuilder' ), $page_id );
+            $is_checked = in_array( $page_id, $assigned_pages, true ) ? ' checked="checked"' : '';
+
+            printf(
+                '<label style="display:block;margin-bottom:6px;"><input type="checkbox" name="webbuilder_assigned_pages[]" value="%1$s"%2$s /> %3$s</label>',
+                esc_attr( $page_id ),
+                $is_checked,
+                esc_html( $page_title )
+            );
+        }
+
+        echo '</div>';
+    } else {
+        echo '<p><em>' . esc_html__( 'No pages available yet.', 'webbuilder' ) . '</em></p>';
+    }
+}
+
+add_action( 'save_post', 'webbuilder_save_assignment_meta' );
+
+/**
+ * Persist assignment settings for header and footer templates.
+ *
+ * @param int $post_id Post ID.
+ */
+function webbuilder_save_assignment_meta( $post_id ) {
+    $post_type = get_post_type( $post_id );
+
+    if ( ! in_array( $post_type, [ 'webbuilder_header', 'webbuilder_footer' ], true ) ) {
+        return;
+    }
+
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        return;
+    }
+
+    if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+        return;
+    }
+
+    if ( ! isset( $_POST['webbuilder_assign_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['webbuilder_assign_nonce'] ) ), 'webbuilder_assign_template' ) ) {
+        return;
+    }
+
+    if ( ! current_user_can( 'edit_post', $post_id ) ) {
+        return;
+    }
+
+    $assign_all = isset( $_POST['webbuilder_assign_all'] ) ? 1 : 0;
+    $raw_pages  = isset( $_POST['webbuilder_assigned_pages'] ) ? (array) wp_unslash( $_POST['webbuilder_assigned_pages'] ) : [];
+
+    $assigned_pages = array_filter(
+        array_unique(
+            array_map( 'absint', $raw_pages )
+        )
+    );
+
+    if ( $assign_all ) {
+        update_post_meta( $post_id, '_assign_all', 1 );
+    } else {
+        delete_post_meta( $post_id, '_assign_all' );
+    }
+
+    if ( ! empty( $assigned_pages ) ) {
+        update_post_meta( $post_id, '_assigned_pages', array_values( $assigned_pages ) );
+    } else {
+        delete_post_meta( $post_id, '_assigned_pages' );
     }
 }
 
@@ -254,4 +423,138 @@ function webbuilder_save_layout_meta( $post_id, $post ) {
     } else {
         delete_post_meta( $post_id, '_webbuilder_footer_id' );
     }
+}
+
+/**
+ * Retrieve assignment candidates for the provided template type.
+ *
+ * @param string $post_type Template post type.
+ *
+ * @return array<int, array{post:WP_Post, assign_all:bool, assigned_pages:array<int, int>}>
+ */
+function webbuilder_get_assignment_candidates( $post_type ) {
+    static $cache = [];
+
+    if ( isset( $cache[ $post_type ] ) ) {
+        return $cache[ $post_type ];
+    }
+
+    if ( ! in_array( $post_type, [ 'webbuilder_header', 'webbuilder_footer' ], true ) ) {
+        $cache[ $post_type ] = [];
+
+        return $cache[ $post_type ];
+    }
+
+    $posts = get_posts(
+        [
+            'post_type'        => $post_type,
+            'post_status'      => 'publish',
+            'numberposts'      => -1,
+            'orderby'          => 'modified',
+            'order'            => 'DESC',
+            'suppress_filters' => false,
+        ]
+    );
+
+    $cache[ $post_type ] = array_map(
+        static function ( $post ) {
+            $assign_all = (int) get_post_meta( $post->ID, '_assign_all', true );
+            $pages      = get_post_meta( $post->ID, '_assigned_pages', true );
+
+            if ( ! is_array( $pages ) ) {
+                $pages = [];
+            }
+
+            $pages = array_values( array_filter( array_map( 'absint', $pages ) ) );
+
+            return [
+                'post'           => $post,
+                'assign_all'     => (bool) $assign_all,
+                'assigned_pages' => $pages,
+            ];
+        },
+        $posts
+    );
+
+    return $cache[ $post_type ];
+}
+
+/**
+ * Resolve the template assigned to a page.
+ *
+ * @param string   $post_type Template post type.
+ * @param int|null $page_id   Page ID.
+ *
+ * @return int Template post ID or 0 when none match.
+ */
+function webbuilder_get_assigned_template_id( $post_type, $page_id = null ) {
+    static $cache = [];
+
+    $page_id   = $page_id ? absint( $page_id ) : 0;
+    $cache_key = $post_type . ':' . $page_id;
+
+    if ( isset( $cache[ $cache_key ] ) ) {
+        return $cache[ $cache_key ];
+    }
+
+    if ( ! in_array( $post_type, [ 'webbuilder_header', 'webbuilder_footer' ], true ) ) {
+        $cache[ $cache_key ] = 0;
+
+        return 0;
+    }
+
+    if ( $page_id ) {
+        $override_key = 'webbuilder_header' === $post_type ? '_webbuilder_header_id' : '_webbuilder_footer_id';
+        $override_id  = (int) get_post_meta( $page_id, $override_key, true );
+
+        if ( $override_id ) {
+            $override_post = get_post( $override_id );
+
+            if ( $override_post instanceof WP_Post && 'publish' === $override_post->post_status ) {
+                $cache[ $cache_key ] = (int) $override_post->ID;
+
+                return $cache[ $cache_key ];
+            }
+        }
+    }
+
+    $candidates = webbuilder_get_assignment_candidates( $post_type );
+
+    $matched_id = 0;
+
+    if ( $page_id ) {
+        foreach ( $candidates as $candidate ) {
+            if ( in_array( $page_id, $candidate['assigned_pages'], true ) ) {
+                $matched_id = (int) $candidate['post']->ID;
+                break;
+            }
+        }
+    }
+
+    if ( ! $matched_id ) {
+        foreach ( $candidates as $candidate ) {
+            if ( $candidate['assign_all'] ) {
+                $matched_id = (int) $candidate['post']->ID;
+                break;
+            }
+        }
+    }
+
+    $cache[ $cache_key ] = $matched_id;
+
+    return $matched_id;
+}
+
+/**
+ * Retrieve the HTML markup for an assigned template.
+ *
+ * @param string   $post_type Template post type.
+ * @param int|null $page_id   Page ID.
+ *
+ * @return string
+ */
+function webbuilder_get_assigned_template_html( $post_type, $page_id = null ) {
+    $template_id = webbuilder_get_assigned_template_id( $post_type, $page_id );
+
+    return $template_id ? get_post_field( 'post_content', $template_id ) : '';
 }

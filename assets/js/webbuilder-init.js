@@ -222,6 +222,158 @@
     const runtimeVars = typeof webbuilder_vars !== 'undefined' ? webbuilder_vars : null;
     const postType = runtimeVars && runtimeVars.post_type ? runtimeVars.post_type : '';
     const isPageContext = !!(runtimeVars && runtimeVars.post_id && postType === 'page');
+    const runtimeMessages = builderData && builderData.messages ? builderData.messages : {};
+    const starterTemplates = builderData && builderData.starterTemplates ? builderData.starterTemplates : {};
+    const pluginUrl = builderData && builderData.pluginUrl ? builderData.pluginUrl : '';
+    const fallbackStarter = {
+        headers: 'templates-library/headers/classic.html',
+        footers: 'templates-library/footers/basic.html',
+    };
+
+    const resolveStarterUrl = (filePath) => {
+        if (!filePath) {
+            return '';
+        }
+
+        const cleanBase = pluginUrl ? pluginUrl.replace(/\/+$/, '') : '';
+        const cleanPath = filePath.replace(/^\/+/, '');
+
+        return cleanBase ? `${cleanBase}/${cleanPath}` : cleanPath;
+    };
+
+    const fetchStarterTemplate = (filePath) => {
+        const requestUrl = resolveStarterUrl(filePath);
+
+        if (!requestUrl) {
+            return Promise.reject(new Error('Missing starter file path.'));
+        }
+
+        return fetch(requestUrl, {
+            method: 'GET',
+            credentials: 'same-origin',
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            return response.text();
+        });
+    };
+
+    const openStarterModal = (groupKey, templatesConfig) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'webbuilder-starter-overlay';
+
+        const panel = document.createElement('div');
+        panel.className = 'webbuilder-starter-panel';
+
+        const title = document.createElement('h2');
+        const titleText = groupKey === 'headers' ? runtimeMessages.starterHeaderTitle : runtimeMessages.starterFooterTitle;
+        title.textContent = titleText || (groupKey === 'headers' ? 'Choose a header starter' : 'Choose a footer starter');
+        panel.appendChild(title);
+
+        const list = document.createElement('div');
+        list.className = 'webbuilder-starter-list';
+
+        let escListener = null;
+
+        const removeOverlay = () => {
+            if (overlay.parentNode) {
+                overlay.remove();
+            }
+
+            if (escListener) {
+                document.removeEventListener('keydown', escListener);
+                escListener = null;
+            }
+        };
+
+        Object.entries(templatesConfig).forEach(([templateKey, templateData]) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'webbuilder-starter-item';
+            button.textContent = (templateData && templateData.label) ? templateData.label : templateKey;
+
+            button.addEventListener('click', () => {
+                overlay.classList.add('is-busy');
+
+                fetchStarterTemplate(templateData && templateData.file ? templateData.file : fallbackStarter[groupKey])
+                    .then((html) => {
+                        editor.setComponents(html || '');
+                        applyCss(editor, '');
+                        removeOverlay();
+                    })
+                    .catch(() => {
+                        overlay.classList.remove('is-busy');
+                        window.alert(runtimeMessages.starterLoadError || 'Unable to load the starter layout. Please try again.');
+                    });
+            });
+
+            list.appendChild(button);
+        });
+
+        panel.appendChild(list);
+
+        const skipButton = document.createElement('button');
+        skipButton.type = 'button';
+        skipButton.className = 'webbuilder-starter-skip';
+        skipButton.textContent = runtimeMessages.starterSkip || 'Start from blank';
+        skipButton.addEventListener('click', removeOverlay);
+        panel.appendChild(skipButton);
+
+        overlay.appendChild(panel);
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                removeOverlay();
+            }
+        });
+
+        escListener = (event) => {
+            if (event.key === 'Escape') {
+                removeOverlay();
+            }
+        };
+
+        document.addEventListener('keydown', escListener);
+        document.body.appendChild(overlay);
+    };
+
+    const maybeShowStarterModal = () => {
+        if (postType !== 'webbuilder_header' && postType !== 'webbuilder_footer') {
+            return;
+        }
+
+        const hasInitialHtml = !!(initialMarkupData.html && initialMarkupData.html.trim());
+        const hasInitialCss = !!(initialMarkupData.css && initialMarkupData.css.trim());
+
+        if (hasInitialHtml || hasInitialCss) {
+            return;
+        }
+
+        const groupKey = postType === 'webbuilder_header' ? 'headers' : 'footers';
+        const templatesConfig = starterTemplates[groupKey] || {};
+        const templateKeys = Object.keys(templatesConfig);
+
+        if (templateKeys.length) {
+            setTimeout(() => openStarterModal(groupKey, templatesConfig), 0);
+            return;
+        }
+
+        const fallbackFile = fallbackStarter[groupKey];
+
+        if (!fallbackFile) {
+            return;
+        }
+
+        fetchStarterTemplate(fallbackFile)
+            .then((html) => {
+                if (!editor.getHtml().trim()) {
+                    editor.setComponents(html || '');
+                    applyCss(editor, '');
+                }
+            })
+            .catch(() => {});
+    };
 
     let structureReady = false;
 
@@ -242,6 +394,7 @@
             });
     } else {
         applyDirectMarkup(editor, initialMarkupData);
+        maybeShowStarterModal();
     }
 
     if (!builderData) {
@@ -258,7 +411,8 @@
             return;
         }
 
-        noticeEl.textContent = message;
+        const messageText = message || '';
+        noticeEl.textContent = messageText;
         noticeEl.classList.remove('is-success', 'is-error');
         noticeEl.classList.add(type === 'success' ? 'is-success' : 'is-error');
     };
@@ -306,12 +460,12 @@
             const page = pageSelect.value;
 
             if (!template || !page) {
-                setNotice(builderData.messages.loadError, 'error');
+                setNotice(runtimeMessages.loadError, 'error');
                 return;
             }
 
             if (isPageContext && !structureReady) {
-                setNotice(builderData.messages.loadError, 'error');
+                setNotice(runtimeMessages.loadError, 'error');
                 return;
             }
 
@@ -345,10 +499,10 @@
                         applyDirectMarkup(editor, markupData);
                     }
 
-                    setNotice(builderData.messages.loadSuccess, 'success');
+                    setNotice(runtimeMessages.loadSuccess, 'success');
                 })
                 .catch(() => {
-                    setNotice(builderData.messages.loadError, 'error');
+                    setNotice(runtimeMessages.loadError, 'error');
                 })
                 .finally(() => {
                     loadButton.classList.remove('is-loading');

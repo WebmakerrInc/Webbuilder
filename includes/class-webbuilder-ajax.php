@@ -141,11 +141,8 @@ class Webbuilder_Ajax {
             );
         }
 
-        $header_id = get_post_meta( $post_id, '_webbuilder_header_id', true );
-        $footer_id = get_post_meta( $post_id, '_webbuilder_footer_id', true );
-
-        $header_content = $header_id ? get_post_field( 'post_content', $header_id ) : '';
-        $footer_content = $footer_id ? get_post_field( 'post_content', $footer_id ) : '';
+        $header_content = webbuilder_get_assigned_template_html( 'webbuilder_header', $post_id );
+        $footer_content = webbuilder_get_assigned_template_html( 'webbuilder_footer', $post_id );
 
         wp_send_json_success(
             [

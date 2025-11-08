@@ -60,6 +60,22 @@ class Webbuilder_Admin {
             WEBBUILDER_PLUGIN_URL . 'assets/img/webbuilder.gif',
             3
         );
+
+        add_submenu_page(
+            $this->plugin_name,
+            __( 'Headers', 'webbuilder' ),
+            __( 'Headers', 'webbuilder' ),
+            'edit_pages',
+            'edit.php?post_type=webbuilder_header'
+        );
+
+        add_submenu_page(
+            $this->plugin_name,
+            __( 'Footers', 'webbuilder' ),
+            __( 'Footers', 'webbuilder' ),
+            'edit_pages',
+            'edit.php?post_type=webbuilder_footer'
+        );
     }
 
     /**
@@ -152,7 +168,8 @@ class Webbuilder_Admin {
             true
         );
 
-        $selector_data = webbuilder_get_template_selector_data();
+        $selector_data      = webbuilder_get_template_selector_data();
+        $starter_templates  = webbuilder_get_starter_templates();
 
         wp_localize_script(
             'webbuilder-init',
@@ -162,9 +179,15 @@ class Webbuilder_Admin {
                 'nonce'    => wp_create_nonce( 'webbuilder_load_template' ),
                 'templates'=> $selector_data['templates'],
                 'pages'    => $selector_data['pages'],
+                'pluginUrl'=> WEBBUILDER_PLUGIN_URL,
+                'starterTemplates' => $starter_templates,
                 'messages' => [
                     'loadSuccess' => __( 'Template loaded successfully.', 'webbuilder' ),
                     'loadError'   => __( 'Unable to load the selected template.', 'webbuilder' ),
+                    'starterHeaderTitle' => __( 'Choose a header starter', 'webbuilder' ),
+                    'starterFooterTitle' => __( 'Choose a footer starter', 'webbuilder' ),
+                    'starterLoadError'   => __( 'Unable to load the starter layout. Please try again.', 'webbuilder' ),
+                    'starterSkip'        => __( 'Start from blank', 'webbuilder' ),
                 ],
             ]
         );

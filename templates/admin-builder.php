@@ -83,10 +83,10 @@ $allowed_html['style'] = [
 $post_content = $post_content ? wp_kses( $post_content, $allowed_html ) : '';
 ?>
 <div class="wrap webbuilder-wrap">
+    <?php if ( $context_label ) : ?>
+        <div class="webbuilder-mode-label"><?php echo esc_html( $context_label ); ?></div>
+    <?php endif; ?>
     <div class="webbuilder-template-bar" role="region" aria-label="<?php esc_attr_e( 'Template Selector', 'webbuilder' ); ?>">
-        <?php if ( $context_label ) : ?>
-            <span class="webbuilder-context-label"><?php echo esc_html( $context_label ); ?></span>
-        <?php endif; ?>
         <label for="webbuilder-template-select"><?php esc_html_e( 'Select Template', 'webbuilder' ); ?></label>
         <select id="webbuilder-template-select">
             <?php foreach ( $selector_data['templates'] as $template_key => $template_label ) : ?>
