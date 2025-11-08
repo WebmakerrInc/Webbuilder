@@ -6,11 +6,44 @@ document.addEventListener('DOMContentLoaded', () => {
     height: '100vh',
     width: 'auto',
     storageManager: { autoload: false },
-    plugins: ['gjs-blocks-basic'],
     canvas: {
       styles: [
         'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css'
       ]
+    }
+  });
+
+  const panels = editor.Panels;
+
+  const commandsToRemove = [
+    'gjs-open-import-template',
+    'gjs-open-import-webpage',
+    'gjs-open-templates',
+    'gjs-open-code',
+    'export-template'
+  ];
+
+  commandsToRemove.forEach(cmd => editor.Commands.remove(cmd));
+
+  editor.on('load', () => {
+    panels.removeButton('options', 'export-template');
+    panels.removeButton('options', 'gjs-open-import-webpage');
+    panels.removeButton('options', 'gjs-open-import-template');
+    panels.removeButton('options', 'gjs-open-templates');
+    panels.removeButton('options', 'gjs-open-code');
+    panels.removeButton('views', 'open-sm');
+    panels.removeButton('views', 'open-layers');
+    panels.removeButton('views', 'open-tm');
+    panels.removePanel('devices-c');
+
+    const styleManager = editor.StyleManager;
+    if (styleManager) {
+      styleManager.getSectors().reset([]);
+    }
+
+    const blocksButton = panels.getButton('views', 'open-blocks');
+    if (blocksButton) {
+      blocksButton.set('active', true);
     }
   });
 
