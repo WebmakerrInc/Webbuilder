@@ -88,10 +88,19 @@ class Webbuilder_Ajax {
             $kses_removed = true;
         }
 
+        $allowed_html = wp_kses_allowed_html( 'post' );
+        $allowed_html['style'] = [
+            'type'   => true,
+            'media'  => true,
+            'scoped' => true,
+        ];
+
+        $sanitized_content = wp_kses( $content, $allowed_html );
+
         $result = wp_update_post(
             [
                 'ID'           => $post_id,
-                'post_content' => wp_kses_post( $content ),
+                'post_content' => $sanitized_content,
             ],
             true
         );
