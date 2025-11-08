@@ -2,6 +2,44 @@
   margin-top: 20px;
 }
 
+.grapesjs-template-selector {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background: #1d2327;
+  border-radius: 4px;
+  padding: 15px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  color: #fff;
+}
+
+.grapesjs-template-selector__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 200px;
+}
+
+.grapesjs-template-selector__label {
+  font-weight: 600;
+  color: #f0f0f1;
+}
+
+.grapesjs-template-selector__select {
+  min-width: 200px;
+}
+
+.grapesjs-template-selector__actions {
+  margin-left: auto;
+}
+
+.grapesjs-template-selector__actions .button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .grapesjs-editor-shell {
   margin-top: 20px;
   background: #fff;
@@ -52,10 +90,52 @@
   border: none;
 }
 
+.grapesjs-toast {
+  position: fixed;
+  top: 32px;
+  right: 24px;
+  background: #1d2327;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 4px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 100000;
+}
+
+.grapesjs-toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.grapesjs-toast--success {
+  background: #007cba;
+}
+
+.grapesjs-toast--error {
+  background: #d63638;
+}
+
+.grapesjs-toast--warning {
+  background: #dba617;
+  color: #1d2327;
+}
+
 @media (max-width: 768px) {
   .gjs-cv-canvas iframe {
     width: 100%;
     height: auto;
+  }
+
+  .grapesjs-template-selector {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .grapesjs-template-selector__actions {
+    margin-left: 0;
   }
 }
 

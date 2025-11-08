@@ -12,10 +12,50 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$is_editing_post = $post_id > 0;
+$is_editing_post      = $post_id > 0;
+$template_categories  = [
+    'coffee-shop' => __( 'Coffee Shop', 'grapesjs-page-builder' ),
+    'barber'      => __( 'Barber', 'grapesjs-page-builder' ),
+    'school'      => __( 'School', 'grapesjs-page-builder' ),
+];
+$template_page_types = [
+    'home'     => __( 'Home', 'grapesjs-page-builder' ),
+    'about'    => __( 'About', 'grapesjs-page-builder' ),
+    'services' => __( 'Services', 'grapesjs-page-builder' ),
+    'contact'  => __( 'Contact', 'grapesjs-page-builder' ),
+];
 ?>
 <div class="wrap grapesjs-builder-wrap">
     <h1><?php echo esc_html( $title ); ?></h1>
+    <div class="grapesjs-template-selector" data-grapesjs-template-loader>
+        <div class="grapesjs-template-selector__group">
+            <label class="grapesjs-template-selector__label" for="grapesjs-template-category">
+                <?php esc_html_e( 'Select Template Category', 'grapesjs-page-builder' ); ?>
+            </label>
+            <select id="grapesjs-template-category" class="grapesjs-template-selector__select" data-template-category>
+                <option value=""><?php esc_html_e( 'Choose a category', 'grapesjs-page-builder' ); ?></option>
+                <?php foreach ( $template_categories as $template_slug => $template_label ) : ?>
+                    <option value="<?php echo esc_attr( $template_slug ); ?>"><?php echo esc_html( $template_label ); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="grapesjs-template-selector__group">
+            <label class="grapesjs-template-selector__label" for="grapesjs-template-page">
+                <?php esc_html_e( 'Select Page', 'grapesjs-page-builder' ); ?>
+            </label>
+            <select id="grapesjs-template-page" class="grapesjs-template-selector__select" data-template-page>
+                <option value=""><?php esc_html_e( 'Choose a page', 'grapesjs-page-builder' ); ?></option>
+                <?php foreach ( $template_page_types as $page_slug => $page_label ) : ?>
+                    <option value="<?php echo esc_attr( $page_slug ); ?>"><?php echo esc_html( $page_label ); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="grapesjs-template-selector__actions">
+            <button type="button" class="button button-secondary" data-template-load>
+                <?php esc_html_e( 'Load Template', 'grapesjs-page-builder' ); ?>
+            </button>
+        </div>
+    </div>
     <?php if ( $is_editing_post ) : ?>
         <p class="description">
             <?php

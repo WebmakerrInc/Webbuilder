@@ -84,6 +84,56 @@ function grapesjs_page_builder_save_content(): void {
 add_action( 'wp_ajax_grapesjs_save_content', 'grapesjs_page_builder_save_content' );
 
 /**
+ * Load a template file from the template library.
+ */
+function grapesjs_page_builder_load_template(): void {
+    if ( ! current_user_can( 'edit_posts' ) ) {
+        wp_send_json_error( [ 'message' => __( 'You are not allowed to load templates.', 'grapesjs-page-builder' ) ], 403 );
+    }
+
+    $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+
+    if ( ! $nonce || ! wp_verify_nonce( $nonce, 'grapesjs_load_template' ) ) {
+        wp_send_json_error( [ 'message' => __( 'Invalid security token.', 'grapesjs-page-builder' ) ], 403 );
+    }
+
+    $template = isset( $_POST['template'] ) ? sanitize_key( wp_unslash( $_POST['template'] ) ) : '';
+    $page     = isset( $_POST['page'] ) ? sanitize_key( wp_unslash( $_POST['page'] ) ) : '';
+
+    if ( '' === $template || '' === $page ) {
+        wp_send_json_error( [ 'message' => __( 'Template selection is required.', 'grapesjs-page-builder' ) ], 400 );
+    }
+
+    $base_dir     = plugin_dir_path( __FILE__ ) . 'templates-library/';
+    $base_real    = realpath( $base_dir );
+    $template_dir = realpath( $base_dir . $template );
+
+    if ( false === $base_real || false === $template_dir || 0 !== strpos( $template_dir, $base_real ) ) {
+        wp_send_json_error( [ 'message' => __( 'Template not found.', 'grapesjs-page-builder' ) ], 404 );
+    }
+
+    $file_path = realpath( $template_dir . '/' . $page . '.html' );
+
+    if ( false === $file_path || 0 !== strpos( $file_path, $template_dir ) || ! file_exists( $file_path ) ) {
+        wp_send_json_error( [ 'message' => __( 'Template page not found.', 'grapesjs-page-builder' ) ], 404 );
+    }
+
+    $content = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+    if ( false === $content ) {
+        wp_send_json_error( [ 'message' => __( 'Unable to load the selected template.', 'grapesjs-page-builder' ) ], 500 );
+    }
+
+    wp_send_json_success(
+        [
+            'html' => $content,
+        ]
+    );
+}
+
+add_action( 'wp_ajax_grapesjs_load_template', 'grapesjs_page_builder_load_template' );
+
+/**
  * Provide predefined layouts for the editor via the REST API.
  */
 function grapesjs_page_builder_get_layouts(): array {

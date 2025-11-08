@@ -5,6 +5,10 @@
     var defaults = {
       saveSuccess: 'Saved successfully.',
       saveError: 'An error occurred while saving. Please try again.',
+      templateLoadSuccess: 'Template loaded successfully!',
+      templateLoadError: 'Unable to load the selected template.',
+      templateLoadSelection: 'Please choose a template and page to load.',
+      templateLoading: 'Loading…',
     };
 
     if (typeof window.grapesjsPageBuilder === 'undefined') {
@@ -16,6 +20,10 @@
     return {
       saveSuccess: strings.saveSuccess || defaults.saveSuccess,
       saveError: strings.saveError || defaults.saveError,
+      templateLoadSuccess: strings.templateLoadSuccess || defaults.templateLoadSuccess,
+      templateLoadError: strings.templateLoadError || defaults.templateLoadError,
+      templateLoadSelection: strings.templateLoadSelection || defaults.templateLoadSelection,
+      templateLoading: strings.templateLoading || defaults.templateLoading,
     };
   };
 
@@ -30,6 +38,125 @@
     if (type) {
       element.classList.add('grapesjs-status--' + type);
     }
+  };
+
+  var showToast = function (message, type) {
+    if (!message || typeof document === 'undefined') {
+      return;
+    }
+
+    var toast = document.createElement('div');
+    toast.className = 'grapesjs-toast';
+
+    if (type) {
+      toast.className += ' grapesjs-toast--' + type;
+    }
+
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    window.requestAnimationFrame(function () {
+      toast.classList.add('grapesjs-toast--visible');
+    });
+
+    window.setTimeout(function () {
+      toast.classList.remove('grapesjs-toast--visible');
+
+      window.setTimeout(function () {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
+  };
+
+  var registerTemplateLoader = function (editor, strings) {
+    if (typeof window.grapesjsPageBuilder === 'undefined') {
+      return;
+    }
+
+    var wrapper = document.querySelector('[data-grapesjs-template-loader]');
+
+    if (!wrapper || wrapper.dataset.templateLoaderInit === 'true') {
+      return;
+    }
+
+    var categorySelect = wrapper.querySelector('[data-template-category]');
+    var pageSelect = wrapper.querySelector('[data-template-page]');
+    var loadButton = wrapper.querySelector('[data-template-load]');
+
+    if (!categorySelect || !pageSelect || !loadButton) {
+      return;
+    }
+
+    var ajaxUrl = window.grapesjsPageBuilder.ajaxUrl;
+    var nonce = window.grapesjsPageBuilder.templateNonce || '';
+    var originalLabel = loadButton.textContent;
+
+    var setLoadingState = function (isLoading) {
+      loadButton.disabled = isLoading;
+
+      if (isLoading) {
+        loadButton.dataset.originalLabel = originalLabel;
+        loadButton.textContent = strings.templateLoading;
+      } else {
+        loadButton.textContent = loadButton.dataset.originalLabel || originalLabel;
+      }
+    };
+
+    loadButton.addEventListener('click', function (event) {
+      event.preventDefault();
+
+      var template = categorySelect.value;
+      var page = pageSelect.value;
+
+      if (!template || !page) {
+        showToast(strings.templateLoadSelection, 'warning');
+        return;
+      }
+
+      var params = new window.URLSearchParams();
+      params.append('action', 'grapesjs_load_template');
+      params.append('template', template);
+      params.append('page', page);
+      params.append('nonce', nonce);
+
+      setLoadingState(true);
+
+      window
+        .fetch(ajaxUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          },
+          body: params.toString(),
+        })
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error('Request failed');
+          }
+
+          return response.json();
+        })
+        .then(function (data) {
+          if (data && data.success && data.data && typeof data.data.html === 'string') {
+            editor.setComponents(data.data.html);
+            showToast(strings.templateLoadSuccess, 'success');
+            setLoadingState(false);
+            return;
+          }
+
+          throw new Error('Invalid response');
+        })
+        .catch(function () {
+          showToast(strings.templateLoadError, 'error');
+          setLoadingState(false);
+        });
+    });
+
+    wrapper.dataset.templateLoaderInit = 'true';
   };
 
   var initEditors = function () {
@@ -73,6 +200,8 @@
       });
 
       var blockManager = editor.BlockManager;
+
+      registerTemplateLoader(editor, strings);
 
       blockManager.add('hero', {
         label: 'Hero Section',
