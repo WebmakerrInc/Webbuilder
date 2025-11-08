@@ -71,6 +71,17 @@
         },
       });
 
+      var initialStyles =
+        postId > 0 &&
+        typeof window.grapesjsPageBuilder !== 'undefined' &&
+        window.grapesjsPageBuilder.styles
+          ? window.grapesjsPageBuilder.styles
+          : '';
+
+      if (initialStyles) {
+        editor.setStyle(initialStyles);
+      }
+
       editor.BlockManager.add('gjs-hero-section', {
         label: 'Hero Section',
         category: 'Sections',
@@ -104,10 +115,14 @@
           saveButton.disabled = true;
 
           var params = new window.URLSearchParams();
+          var html = editor.getHtml();
+          var css = editor.getCss();
+
           params.append('action', 'grapesjs_save_content');
           params.append('nonce', window.grapesjsPageBuilder.nonce || '');
           params.append('post_id', String(postId));
-          params.append('content', editor.getHtml());
+          params.append('content', html);
+          params.append('styles', css);
 
           fetch(window.grapesjsPageBuilder.ajaxUrl, {
             method: 'POST',
@@ -128,6 +143,10 @@
               if (!payload || payload.success !== true) {
                 var errorMessage = (payload && payload.data && payload.data.message) || strings.saveError;
                 throw new Error(errorMessage);
+              }
+
+              if (typeof window.grapesjsPageBuilder !== 'undefined') {
+                window.grapesjsPageBuilder.styles = css;
               }
 
               setStatusMessage(saveStatus, strings.saveSuccess, 'success');
