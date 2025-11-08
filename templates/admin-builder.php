@@ -64,6 +64,14 @@ if ( ! $post_id ) {
 }
 
 $selector_data = webbuilder_get_template_selector_data();
+$post_content = get_post_field( 'post_content', $post_id );
+$allowed_html = wp_kses_allowed_html( 'post' );
+$allowed_html['style'] = [
+    'type'   => true,
+    'media'  => true,
+    'scoped' => true,
+];
+$post_content = $post_content ? wp_kses( $post_content, $allowed_html ) : '';
 ?>
 <div class="wrap webbuilder-wrap">
     <div class="webbuilder-template-bar" role="region" aria-label="<?php esc_attr_e( 'Template Selector', 'webbuilder' ); ?>">
@@ -86,5 +94,5 @@ $selector_data = webbuilder_get_template_selector_data();
         </button>
         <div class="webbuilder-notice" id="webbuilder-notice" role="status" aria-live="polite"></div>
     </div>
-    <div id="webbuilder-editor"></div>
+    <div id="webbuilder-editor"><?php echo $post_content; ?></div>
 </div>

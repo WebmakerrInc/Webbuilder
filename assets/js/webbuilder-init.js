@@ -5,23 +5,57 @@
         const container = document.getElementById('webbuilder-editor');
 
         if (!container) {
-            return null;
+            return { editor: null, initialMarkup: '' };
         }
 
-        return grapesjs.init({
+        const initialMarkup = container.innerHTML;
+        container.innerHTML = '';
+
+        const editorInstance = grapesjs.init({
             container: '#webbuilder-editor',
             height: 'calc(100vh - 140px)',
             fromElement: false,
             storageManager: false,
             styleManager: { clearProperties: true }
         });
+
+        return { editor: editorInstance, initialMarkup };
     };
 
-    const editor = initEditor();
+    const { editor, initialMarkup } = initEditor();
 
     if (!editor) {
         return;
     }
+
+    const applyInitialMarkup = (markup) => {
+        if (!markup || !markup.trim()) {
+            return;
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = markup;
+
+        const styleNodes = wrapper.querySelectorAll('style');
+        let combinedCss = '';
+
+        styleNodes.forEach((styleNode) => {
+            combinedCss += (styleNode.innerHTML || '') + '\n';
+            styleNode.remove();
+        });
+
+        const html = wrapper.innerHTML.trim();
+
+        if (html) {
+            editor.setComponents(html);
+        }
+
+        if (combinedCss.trim()) {
+            editor.setStyle(combinedCss);
+        }
+    };
+
+    applyInitialMarkup(initialMarkup);
 
     const builderData = typeof webbuilderData !== 'undefined' ? webbuilderData : null;
 
@@ -102,6 +136,8 @@
                         throw new Error('Invalid response');
                     }
 
+                    editor.CssComposer.getAll().reset();
+                    editor.setStyle('');
                     editor.setComponents(response.data ? response.data.html : response.html);
                     setNotice(builderData.messages.loadSuccess, 'success');
                 })
@@ -135,7 +171,10 @@
                 const params = new URLSearchParams();
                 params.append('action', 'webbuilder_save_page');
                 params.append('post_id', postID);
-                params.append('content', editorInstance.getHtml());
+                const html = editorInstance.getHtml();
+                const css = editorInstance.getCss();
+                const content = css && css.trim() ? `<style>${css}</style>${html}` : html;
+                params.append('content', content);
 
                 fetch(runtimeVars.ajaxurl, {
                     method: 'POST',
