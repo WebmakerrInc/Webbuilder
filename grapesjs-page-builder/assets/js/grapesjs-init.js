@@ -71,6 +71,7 @@
         },
       });
 
+      var postId = parseInt(container.dataset.postId || '0', 10);
       var initialStyles =
         postId > 0 &&
         typeof window.grapesjsPageBuilder !== 'undefined' &&
@@ -96,7 +97,6 @@
           '</section>',
       });
 
-      var postId = parseInt(container.dataset.postId || '0', 10);
       var saveButtonSelector = container.dataset.saveButton || '';
       var saveStatusSelector = container.dataset.saveStatus || '';
       var saveButton = saveButtonSelector ? document.querySelector(saveButtonSelector) : null;
