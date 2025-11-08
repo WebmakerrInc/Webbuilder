@@ -30,17 +30,18 @@ Description: Full-width blank template for Webbuilder pages.
   while ( have_posts() ) :
       the_post();
 
-      $header_id = get_post_meta( get_the_ID(), '_webbuilder_header_id', true );
-      $footer_id = get_post_meta( get_the_ID(), '_webbuilder_footer_id', true );
+      $page_id     = get_the_ID();
+      $header_html = webbuilder_get_assigned_template_html( 'webbuilder_header', $page_id );
+      $footer_html = webbuilder_get_assigned_template_html( 'webbuilder_footer', $page_id );
 
-      if ( $header_id ) {
-          echo get_post_field( 'post_content', $header_id );
+      if ( $header_html ) {
+          echo $header_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is editor-controlled HTML.
       }
 
       the_content();
 
-      if ( $footer_id ) {
-          echo get_post_field( 'post_content', $footer_id );
+      if ( $footer_html ) {
+          echo $footer_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is editor-controlled HTML.
       }
   endwhile;
   ?>

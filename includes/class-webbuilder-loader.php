@@ -64,6 +64,7 @@ add_action(
                 'label'         => __( 'Webbuilder Headers', 'webbuilder' ),
                 'public'        => false,
                 'show_ui'       => true,
+                'show_in_menu'  => false,
                 'menu_position' => 25,
                 'supports'      => [ 'title', 'editor' ],
             ]
@@ -75,6 +76,7 @@ add_action(
                 'label'         => __( 'Webbuilder Footers', 'webbuilder' ),
                 'public'        => false,
                 'show_ui'       => true,
+                'show_in_menu'  => false,
                 'menu_position' => 26,
                 'supports'      => [ 'title', 'editor' ],
             ]
