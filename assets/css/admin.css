@@ -1,0 +1,85 @@
+.webbuilder-wrap {
+    margin: 0;
+    padding: 0;
+}
+
+.webbuilder-template-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #2d2d2d;
+    color: #ffffff;
+    padding: 16px 24px;
+    border-radius: 4px 4px 0 0;
+    margin-bottom: 0;
+}
+
+.webbuilder-template-bar label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    color: #b7b7b7;
+}
+
+.webbuilder-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.webbuilder-template-bar select {
+    min-width: 160px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: none;
+    background: #424242;
+    color: #ffffff;
+}
+
+.webbuilder-template-bar select:focus {
+    outline: 2px solid #01c468;
+    outline-offset: 2px;
+}
+
+.webbuilder-load-button {
+    background: #01c468 !important;
+    border: none !important;
+    color: #ffffff !important;
+    padding: 10px 20px !important;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+.webbuilder-load-button.is-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.webbuilder-load-button:hover,
+.webbuilder-load-button:focus {
+    background: #00b05a !important;
+    color: #ffffff !important;
+}
+
+#webbuilder-editor {
+    height: calc(100vh - 180px);
+}
+
+.webbuilder-notice {
+    margin-left: auto;
+    font-size: 13px;
+    min-height: 18px;
+}
+
+.webbuilder-notice.is-success {
+    color: #8af0c4;
+}
+
+.webbuilder-notice.is-error {
+    color: #ff8a8a;
+}
