@@ -54,6 +54,34 @@ class Loader {
     }
 
     public function register_assets(): void {
+        \register_post_meta(
+            'page',
+            '_webbuilder_html',
+            [
+                'type'              => 'string',
+                'single'            => true,
+                'show_in_rest'      => true,
+                'sanitize_callback' => '\\wp_kses_post',
+                'auth_callback'     => static function ( $allowed, $meta_key, $post_id ) {
+                    return \current_user_can( 'edit_post', $post_id );
+                },
+            ]
+        );
+
+        \register_post_meta(
+            'page',
+            '_webbuilder_css',
+            [
+                'type'              => 'string',
+                'single'            => true,
+                'show_in_rest'      => true,
+                'sanitize_callback' => '\\sanitize_textarea_field',
+                'auth_callback'     => static function ( $allowed, $meta_key, $post_id ) {
+                    return \current_user_can( 'edit_post', $post_id );
+                },
+            ]
+        );
+
         wp_register_style(
             'grapesjs-icons',
             $this->plugin_url( 'assets/js/grapesjs/css/grapes.min.css' ),

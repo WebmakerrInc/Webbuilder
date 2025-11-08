@@ -50,6 +50,7 @@ function grapesjs_page_builder_save_content(): void {
     }
 
     $content = isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '';
+    $css     = isset( $_POST['css'] ) ? sanitize_textarea_field( wp_unslash( $_POST['css'] ) ) : '';
 
     $result = wp_update_post(
         [
@@ -62,6 +63,9 @@ function grapesjs_page_builder_save_content(): void {
     if ( is_wp_error( $result ) ) {
         wp_send_json_error( [ 'message' => $result->get_error_message() ], 500 );
     }
+
+    update_post_meta( $post_id, '_webbuilder_html', $content );
+    update_post_meta( $post_id, '_webbuilder_css', $css );
 
     wp_send_json_success( [ 'message' => __( 'Content saved.', 'grapesjs-page-builder' ) ] );
 }

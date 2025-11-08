@@ -375,6 +375,7 @@
         params.append('nonce', window.grapesjsPageBuilder.nonce || '');
         params.append('post_id', String(postId));
         params.append('content', editor.getHtml());
+        params.append('css', editor.getCss());
 
         return fetch(window.grapesjsPageBuilder.ajaxUrl, {
           method: 'POST',
