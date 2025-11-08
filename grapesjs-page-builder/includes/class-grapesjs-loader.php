@@ -69,10 +69,50 @@ class Loader {
             true
         );
 
+        $plugin_dependencies = [ 'grapesjs-core' ];
+
+        wp_register_script(
+            'grapesjs-blocks-basic',
+            $this->plugin_url( 'assets/js/grapesjs/plugins/grapesjs-blocks-basic.min.js' ),
+            $plugin_dependencies,
+            self::GRAPESJS_VERSION,
+            true
+        );
+
+        wp_register_script(
+            'grapesjs-plugin-forms',
+            $this->plugin_url( 'assets/js/grapesjs/plugins/grapesjs-plugin-forms.min.js' ),
+            $plugin_dependencies,
+            self::GRAPESJS_VERSION,
+            true
+        );
+
+        wp_register_script(
+            'grapesjs-navbar',
+            $this->plugin_url( 'assets/js/grapesjs/plugins/grapesjs-navbar.min.js' ),
+            $plugin_dependencies,
+            self::GRAPESJS_VERSION,
+            true
+        );
+
+        wp_register_script(
+            'grapesjs-component-countdown',
+            $this->plugin_url( 'assets/js/grapesjs/plugins/grapesjs-component-countdown.min.js' ),
+            $plugin_dependencies,
+            self::GRAPESJS_VERSION,
+            true
+        );
+
         wp_register_script(
             'grapesjs-page-builder-init',
             $this->plugin_url( 'assets/js/grapesjs-init.js' ),
-            [ 'grapesjs-core' ],
+            [
+                'grapesjs-core',
+                'grapesjs-blocks-basic',
+                'grapesjs-plugin-forms',
+                'grapesjs-navbar',
+                'grapesjs-component-countdown',
+            ],
             self::VERSION,
             true
         );
@@ -88,6 +128,10 @@ class Loader {
     public function enqueue_editor_assets(): void {
         wp_enqueue_style( 'grapesjs-core' );
         wp_enqueue_script( 'grapesjs-core' );
+        wp_enqueue_script( 'grapesjs-blocks-basic' );
+        wp_enqueue_script( 'grapesjs-plugin-forms' );
+        wp_enqueue_script( 'grapesjs-navbar' );
+        wp_enqueue_script( 'grapesjs-component-countdown' );
         wp_enqueue_script( 'grapesjs-page-builder-init' );
     }
 

@@ -51,25 +51,38 @@
         container.id = 'grapesjs-editor-' + index;
       }
 
-      var height = container.dataset.editorHeight || '75vh';
-      var storageId = container.dataset.storageId || container.id;
-
       var editor = window.grapesjs.init({
         container: '#' + container.id,
         fromElement: true,
-        height: height,
-        storageManager: {
-          type: 'local',
-          autosave: false,
-          autoload: false,
-          stepsBeforeSave: 1,
-          options: {
-            local: {
-              key: storageId,
-            },
+        height: '100vh',
+        width: 'auto',
+        storageManager: false,
+        noticeOnUnload: false,
+        plugins: [
+          'gjs-blocks-basic',
+          'grapesjs-plugin-forms',
+          'grapesjs-navbar',
+          'grapesjs-component-countdown',
+        ],
+        pluginsOpts: {
+          'gjs-blocks-basic': {
+            flexGrid: true,
           },
         },
-        noticeOnUnload: false,
+      });
+
+      editor.BlockManager.add('gjs-hero-section', {
+        label: 'Hero Section',
+        category: 'Sections',
+        attributes: {
+          class: 'gjs-fonts gjs-f-hero',
+          title: 'Add a hero section',
+        },
+        content:
+          '<section style="padding:50px;text-align:center;background:#f4f4f4;">' +
+          '<h1>Welcome to GrapesJS Page Builder</h1>' +
+          '<p>Edit this section or drag new blocks from the left panel.</p>' +
+          '</section>',
       });
 
       var postId = parseInt(container.dataset.postId || '0', 10);
