@@ -50,10 +50,15 @@ class Admin {
             [
                 'ajaxUrl' => admin_url( 'admin-ajax.php' ),
                 'nonce'   => wp_create_nonce( 'grapesjs_save_content' ),
+                'templateNonce' => wp_create_nonce( 'grapesjs_load_template' ),
                 'postId'  => $post_id,
                 'strings' => [
                     'saveSuccess' => __( 'Saved successfully.', 'grapesjs-page-builder' ),
                     'saveError'   => __( 'An error occurred while saving. Please try again.', 'grapesjs-page-builder' ),
+                    'templateLoadSuccess'   => __( 'Template loaded successfully!', 'grapesjs-page-builder' ),
+                    'templateLoadError'     => __( 'Unable to load the selected template.', 'grapesjs-page-builder' ),
+                    'templateLoadSelection' => __( 'Please choose a template and page to load.', 'grapesjs-page-builder' ),
+                    'templateLoading'       => __( 'Loading template…', 'grapesjs-page-builder' ),
                 ],
             ]
         );
