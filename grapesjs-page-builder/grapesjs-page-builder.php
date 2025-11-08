@@ -50,9 +50,9 @@ function grapesjs_page_builder_save_content(): void {
     }
 
     $content = isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '';
-    $styles  = '';
+    $styles  = null;
 
-    if ( isset( $_POST['styles'] ) ) {
+    if ( array_key_exists( 'styles', $_POST ) ) {
         $raw_styles = wp_unslash( $_POST['styles'] );
 
         if ( is_string( $raw_styles ) ) {
@@ -72,10 +72,12 @@ function grapesjs_page_builder_save_content(): void {
         wp_send_json_error( [ 'message' => $result->get_error_message() ], 500 );
     }
 
-    if ( '' === $styles ) {
-        delete_post_meta( $post_id, '_grapesjs_css' );
-    } else {
-        update_post_meta( $post_id, '_grapesjs_css', $styles );
+    if ( null !== $styles ) {
+        if ( '' === $styles ) {
+            delete_post_meta( $post_id, '_grapesjs_css' );
+        } else {
+            update_post_meta( $post_id, '_grapesjs_css', $styles );
+        }
     }
 
     wp_send_json_success( [ 'message' => __( 'Content saved.', 'grapesjs-page-builder' ) ] );
