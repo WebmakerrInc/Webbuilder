@@ -11,11 +11,67 @@
         const initialMarkup = container.innerHTML;
         container.innerHTML = '';
 
+        const basePluginUrl = (() => {
+            if (typeof plugin_dir !== 'undefined') {
+                if (typeof plugin_dir === 'string') {
+                    return plugin_dir;
+                }
+
+                if (plugin_dir && typeof plugin_dir.url === 'string') {
+                    return plugin_dir.url;
+                }
+
+                if (plugin_dir && typeof plugin_dir === 'object') {
+                    const values = Object.values(plugin_dir);
+
+                    if (values.length && typeof values[0] === 'string') {
+                        return values[0];
+                    }
+                }
+            }
+
+            if (typeof webbuilderData !== 'undefined' && webbuilderData && webbuilderData.pluginUrl) {
+                return webbuilderData.pluginUrl;
+            }
+
+            return '';
+        })();
+
+        const normalizeUrl = (base, path) => {
+            if (!path) {
+                return '';
+            }
+
+            if (/^https?:\/\//i.test(path)) {
+                return path;
+            }
+
+            if (!base) {
+                return path;
+            }
+
+            const cleanBase = base.replace(/\/+$/, '/');
+            const cleanPath = path.replace(/^\/+/, '');
+
+            return cleanBase + cleanPath;
+        };
+
         const editorInstance = grapesjs.init({
             container: '#webbuilder-editor',
             height: 'calc(100vh - 140px)',
             fromElement: false,
             storageManager: false,
+            canvas: {
+                styles: [
+                    normalizeUrl(basePluginUrl, 'assets/js/grapesjs/css/grapes.min.css'),
+                    normalizeUrl(basePluginUrl, 'assets/css/admin.css'),
+                    normalizeUrl(basePluginUrl, 'templates-library/shared.css'),
+                    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
+                ].filter(Boolean),
+                scripts: [
+                    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
+                ],
+            },
             styleManager: { clearProperties: true },
             plugins: [
                 'gjs-blocks-basic',

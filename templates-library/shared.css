@@ -1,0 +1,24 @@
+body, html {
+  font-family: 'Inter', sans-serif;
+  background: #fff;
+  color: #333;
+}
+
+section, header, footer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.btn, button {
+  background: #01C468;
+  color: #fff;
+  border-radius: 4px;
+  padding: 10px 20px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn:hover {
+  background: #00b05d;
+}
