@@ -1,17 +1,11 @@
 (function () {
   'use strict';
 
-  var plugin_dir = (function () {
-    if (typeof window.plugin_dir === 'string') {
-      return window.plugin_dir;
-    }
+  var plugin_dir = '';
 
-    if (window.plugin_dir && typeof window.plugin_dir.url === 'string') {
-      return window.plugin_dir.url;
-    }
-
-    return '';
-  })();
+  if (typeof window.plugin_dir === 'string') {
+    plugin_dir = window.plugin_dir;
+  }
 
   var getStrings = function () {
     var defaults = {
@@ -199,7 +193,9 @@
           styles: [
             plugin_dir + 'assets/js/grapesjs/css/grapes.min.css',
             plugin_dir + 'assets/css/admin.css',
+            plugin_dir + 'templates-library/shared.css',
             'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
+            // 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
           ],
           scripts: [
             'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',

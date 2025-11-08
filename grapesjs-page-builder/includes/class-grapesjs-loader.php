@@ -130,9 +130,7 @@ class Loader {
         wp_localize_script(
             'grapesjs-page-builder-init',
             'plugin_dir',
-            [
-                'url' => trailingslashit( $this->plugin_url ),
-            ]
+            trailingslashit( $this->plugin_url )
         );
 
         wp_register_style(
