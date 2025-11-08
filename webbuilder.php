@@ -26,6 +26,7 @@ if ( ! defined( 'WEBBUILDER_PLUGIN_URL' ) ) {
 require_once WEBBUILDER_PLUGIN_DIR . 'includes/class-webbuilder-loader.php';
 require_once WEBBUILDER_PLUGIN_DIR . 'includes/class-webbuilder-admin.php';
 require_once WEBBUILDER_PLUGIN_DIR . 'includes/class-webbuilder-ajax.php';
+require_once WEBBUILDER_PLUGIN_DIR . 'includes/class-webbuilder-edit-links.php';
 
 /**
  * Bootstrap the plugin.
@@ -38,6 +39,9 @@ function webbuilder_run() {
 
     $ajax = new Webbuilder_Ajax();
     $ajax->register( $loader );
+
+    $edit_links = new Webbuilder_Edit_Links();
+    $edit_links->register();
 
     $loader->run();
 }

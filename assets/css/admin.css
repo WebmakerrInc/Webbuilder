@@ -83,3 +83,60 @@
 .webbuilder-notice.is-error {
     color: #ff8a8a;
 }
+
+.webbuilder-select-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+}
+
+.webbuilder-select-page select {
+    padding: 10px;
+    font-size: 16px;
+    width: 280px;
+    margin-bottom: 15px;
+}
+
+.webbuilder-select-page button {
+    background: #01C468;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.webbuilder-select-page button:hover {
+    background: #00b05d;
+}
+
+.webmakerr-edit-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #01C468;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 9999;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.webmakerr-edit-btn .dashicons {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.webmakerr-edit-btn .webmakerr-edit-label {
+    display: inline-flex;
+    align-items: center;
+}
