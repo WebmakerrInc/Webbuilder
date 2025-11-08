@@ -64,6 +64,15 @@ if ( ! $post_id ) {
 }
 
 $selector_data = webbuilder_get_template_selector_data();
+$post_type     = get_post_type( $post_id );
+$context_label = '';
+
+if ( 'webbuilder_header' === $post_type ) {
+    $context_label = __( 'Editing Header Template', 'webbuilder' );
+} elseif ( 'webbuilder_footer' === $post_type ) {
+    $context_label = __( 'Editing Footer Template', 'webbuilder' );
+}
+
 $post_content = get_post_field( 'post_content', $post_id );
 $allowed_html = wp_kses_allowed_html( 'post' );
 $allowed_html['style'] = [
@@ -75,6 +84,9 @@ $post_content = $post_content ? wp_kses( $post_content, $allowed_html ) : '';
 ?>
 <div class="wrap webbuilder-wrap">
     <div class="webbuilder-template-bar" role="region" aria-label="<?php esc_attr_e( 'Template Selector', 'webbuilder' ); ?>">
+        <?php if ( $context_label ) : ?>
+            <span class="webbuilder-context-label"><?php echo esc_html( $context_label ); ?></span>
+        <?php endif; ?>
         <label for="webbuilder-template-select"><?php esc_html_e( 'Select Template', 'webbuilder' ); ?></label>
         <select id="webbuilder-template-select">
             <?php foreach ( $selector_data['templates'] as $template_key => $template_label ) : ?>

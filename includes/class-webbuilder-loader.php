@@ -54,3 +54,30 @@ class Webbuilder_Loader {
         }
     }
 }
+
+add_action(
+    'init',
+    function () {
+        register_post_type(
+            'webbuilder_header',
+            [
+                'label'         => __( 'Webbuilder Headers', 'webbuilder' ),
+                'public'        => false,
+                'show_ui'       => true,
+                'menu_position' => 25,
+                'supports'      => [ 'title', 'editor' ],
+            ]
+        );
+
+        register_post_type(
+            'webbuilder_footer',
+            [
+                'label'         => __( 'Webbuilder Footers', 'webbuilder' ),
+                'public'        => false,
+                'show_ui'       => true,
+                'menu_position' => 26,
+                'supports'      => [ 'title', 'editor' ],
+            ]
+        );
+    }
+);

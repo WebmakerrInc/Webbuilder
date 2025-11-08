@@ -29,7 +29,19 @@ Description: Full-width blank template for Webbuilder pages.
   <?php
   while ( have_posts() ) :
       the_post();
+
+      $header_id = get_post_meta( get_the_ID(), '_webbuilder_header_id', true );
+      $footer_id = get_post_meta( get_the_ID(), '_webbuilder_footer_id', true );
+
+      if ( $header_id ) {
+          echo get_post_field( 'post_content', $header_id );
+      }
+
       the_content();
+
+      if ( $footer_id ) {
+          echo get_post_field( 'post_content', $footer_id );
+      }
   endwhile;
   ?>
   <?php wp_footer(); ?>

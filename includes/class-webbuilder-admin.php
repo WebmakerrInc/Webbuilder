@@ -178,6 +178,7 @@ class Webbuilder_Admin {
         }
 
         $preview_url = $post_id ? get_permalink( $post_id ) : '';
+        $post_type   = $post_id ? get_post_type( $post_id ) : '';
 
         wp_localize_script(
             'webbuilder-init',
@@ -186,6 +187,8 @@ class Webbuilder_Admin {
                 'ajaxurl'     => admin_url( 'admin-ajax.php' ),
                 'post_id'     => $post_id,
                 'preview_url' => $preview_url,
+                'post_type'   => $post_type,
+                'layoutNonce' => wp_create_nonce( 'webbuilder_get_header_footer' ),
             ]
         );
     }
