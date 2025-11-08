@@ -45,21 +45,17 @@
         const data = WebBuilderProData;
         const editor = grapesjs.init({
             container: '#gjs',
-            height: 'calc(100vh - 180px)',
-            storageManager: false,
-            selectorManager: {
-                componentFirst: true,
-            },
-            canvas: {
-                styles: [
-                    'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
-                    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
-                ],
-            },
-            plugins: ['gjs-blocks-basic', 'grapesjs-blocks-basic'],
+            height: '100vh',
+            width: 'auto',
+            storageManager: { autoload: false },
+
+            // Load GrapesJS official blocks
+            plugins: ['gjs-blocks-basic'],
             pluginsOpts: {
-                'grapesjs-blocks-basic': {
+                'gjs-blocks-basic': {
                     flexGrid: true,
+                    stylePrefix: 'gjs-',
+                    addBasicStyle: true,
                     blocks: [
                         'column1',
                         'column2',
@@ -70,12 +66,25 @@
                         'video',
                         'quote',
                         'list',
-                        'map',
-                        'form',
                         'button',
+                        'form',
+                        'map',
                     ],
                 },
             },
+
+            // Tailwind and Font Awesome in canvas
+            canvas: {
+                styles: [
+                    'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
+                ],
+            },
+        });
+
+        editor.on('load', () => {
+            const btn = editor.Panels.getButton('views', 'open-blocks');
+            if (btn) btn.set('active', true);
         });
 
         editor.Commands.remove('gjs-open-import-template');
@@ -85,8 +94,8 @@
         const pluginBlocks =
             (editor.getConfig() &&
                 editor.getConfig().pluginsOpts &&
-                editor.getConfig().pluginsOpts['grapesjs-blocks-basic'] &&
-                editor.getConfig().pluginsOpts['grapesjs-blocks-basic'].blocks) || [];
+                editor.getConfig().pluginsOpts['gjs-blocks-basic'] &&
+                editor.getConfig().pluginsOpts['gjs-blocks-basic'].blocks) || [];
 
         const baseSafeBlocks = [
             {
