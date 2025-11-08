@@ -74,6 +74,8 @@ class Webbuilder_Ajax {
      * Save the current editor content to the selected page.
      */
     public function save_page() {
+        check_ajax_referer( 'webbuilder_save_page' );
+
         $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
         $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
 

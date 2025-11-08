@@ -132,10 +132,16 @@
                     return;
                 }
 
+                if (!runtimeVars.nonce) {
+                    window.alert('⚠️ Cannot save: Security token missing.');
+                    return;
+                }
+
                 const params = new URLSearchParams();
                 params.append('action', 'webbuilder_save_page');
                 params.append('post_id', postID);
                 params.append('content', editorInstance.getHtml());
+                params.append('_ajax_nonce', runtimeVars.nonce);
 
                 fetch(runtimeVars.ajaxurl, {
                     method: 'POST',

@@ -138,6 +138,7 @@ class Webbuilder_Admin {
                 'ajaxurl'     => admin_url( 'admin-ajax.php' ),
                 'post_id'     => $post_id,
                 'preview_url' => $preview_url,
+                'nonce'       => wp_create_nonce( 'webbuilder_save_page' ),
             ]
         );
     }
