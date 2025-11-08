@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     height: '100vh',
     width: 'auto',
     storageManager: { autoload: false },
+    plugins: ['gjs-blocks-basic'],
     canvas: {
       styles: [
         'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css'
@@ -13,51 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const panels = editor.Panels;
+  // Remove only unsafe panels
+  editor.Panels.removeButton('options', 'export-template');
+  editor.Panels.removeButton('options', 'gjs-open-import-webpage');
+  editor.Panels.removeButton('options', 'gjs-open-templates');
+  editor.Panels.removeButton('views', 'open-sm');  // style manager
+  editor.Panels.removeButton('views', 'open-layers');
+  editor.Panels.removeButton('views', 'open-tm');  // trait manager
 
-  // Disable all raw code editing, but keep block panel
-  const disableRawEditing = () => {
-    panels.removeButton('options', 'export-template');
-    panels.removeButton('options', 'gjs-open-import-webpage');
-    panels.removeButton('options', 'gjs-open-templates');
-    panels.removeButton('views', 'open-sm');
-    panels.removeButton('views', 'open-layers');
-    panels.removeButton('views', 'open-tm');
-    panels.removeButton('options', 'gjs-open-import-template');
-    panels.removeButton('options', 'gjs-open-code');
-  };
-
-  disableRawEditing();
-
-  panels.addPanel({
-    id: 'blocks',
-    el: '.gjs-pn-views-container',
-  });
-
-  const commandsToRemove = [
-    'gjs-open-import-template',
-    'gjs-open-import-webpage',
-    'gjs-open-templates',
-    'gjs-open-code',
-    'export-template'
-  ];
-
-  commandsToRemove.forEach(cmd => editor.Commands.remove(cmd));
-
-  editor.on('load', () => {
-    disableRawEditing();
-
-    const styleManager = editor.StyleManager;
-    if (styleManager) {
-      styleManager.getSectors().reset([]);
-    }
-
-    const blocksButton = panels.getButton('views', 'open-blocks');
-    if (blocksButton) {
-      blocksButton.set('active', true);
-    }
-  });
-
+  // Keep block manager + device manager
+  editor.Panels.getButton('views', 'open-blocks').set('active', true);
   const blockManager = editor.BlockManager;
 
   // Hero Section
