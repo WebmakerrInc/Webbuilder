@@ -12,6 +12,16 @@
     border-bottom: 1px solid #1f1f1f;
 }
 
+.webbuilder-context-label {
+    color: #fff;
+    font-weight: 600;
+    margin-right: 12px;
+}
+
+.webbuilder-global-slot {
+    display: contents;
+}
+
 .webbuilder-template-bar label {
     font-size: 12px;
     color: #ccc;

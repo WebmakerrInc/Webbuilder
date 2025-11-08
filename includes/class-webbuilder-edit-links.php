@@ -19,6 +19,7 @@ class Webbuilder_Edit_Links {
      */
     public function register() {
         add_filter( 'page_row_actions', [ $this, 'add_page_row_action' ], 10, 2 );
+        add_filter( 'post_row_actions', [ $this, 'add_page_row_action' ], 10, 2 );
         add_action( 'edit_form_after_title', [ $this, 'render_edit_screen_button' ] );
         add_action( 'wp_footer', [ $this, 'render_frontend_button' ] );
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_frontend_styles' ] );
@@ -33,7 +34,7 @@ class Webbuilder_Edit_Links {
      * @return array
      */
     public function add_page_row_action( $actions, $post ) {
-        if ( empty( $post ) || 'page' !== $post->post_type ) {
+        if ( empty( $post ) || ! in_array( $post->post_type, [ 'page', 'webbuilder_header', 'webbuilder_footer' ], true ) ) {
             return $actions;
         }
 
@@ -52,7 +53,7 @@ class Webbuilder_Edit_Links {
      * @param WP_Post $post Post object.
      */
     public function render_edit_screen_button( $post ) {
-        if ( empty( $post ) || 'page' !== $post->post_type ) {
+        if ( empty( $post ) || ! in_array( $post->post_type, [ 'page', 'webbuilder_header', 'webbuilder_footer' ], true ) ) {
             return;
         }
 
@@ -116,7 +117,14 @@ class Webbuilder_Edit_Links {
      * @return string
      */
     protected function get_builder_url( $post_id ) {
-        return admin_url( 'admin.php?page=webbuilder&post_id=' . absint( $post_id ) );
+        $url       = admin_url( 'admin.php?page=webbuilder&post_id=' . absint( $post_id ) );
+        $post_type = get_post_type( $post_id );
+
+        if ( $post_type && 'page' !== $post_type ) {
+            $url = add_query_arg( 'post_type', $post_type, $url );
+        }
+
+        return $url;
     }
 
 }

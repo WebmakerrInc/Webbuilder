@@ -22,6 +22,7 @@ class Webbuilder_Ajax {
     public function register( Webbuilder_Loader $loader ) {
         $loader->add_action( 'wp_ajax_webbuilder_load_template', $this, 'load_template' );
         $loader->add_action( 'wp_ajax_webbuilder_save_page', $this, 'save_page' );
+        $loader->add_action( 'wp_ajax_webbuilder_get_header_footer', $this, 'get_header_footer' );
     }
 
     /**
@@ -114,5 +115,43 @@ class Webbuilder_Ajax {
         }
 
         wp_send_json_success( [ 'message' => __( 'Page saved successfully.', 'webbuilder' ) ] );
+    }
+
+    /**
+     * Retrieve assigned header and footer templates for a page.
+     */
+    public function get_header_footer() {
+        $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+        $nonce   = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+            wp_send_json_error( [ 'message' => __( 'Permission denied or invalid post.', 'webbuilder' ) ], 403 );
+        }
+
+        if ( ! wp_verify_nonce( $nonce, 'webbuilder_get_header_footer' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Invalid request.', 'webbuilder' ) ], 400 );
+        }
+
+        if ( 'page' !== get_post_type( $post_id ) ) {
+            wp_send_json_success(
+                [
+                    'header' => '',
+                    'footer' => '',
+                ]
+            );
+        }
+
+        $header_id = get_post_meta( $post_id, '_webbuilder_header_id', true );
+        $footer_id = get_post_meta( $post_id, '_webbuilder_footer_id', true );
+
+        $header_content = $header_id ? get_post_field( 'post_content', $header_id ) : '';
+        $footer_content = $footer_id ? get_post_field( 'post_content', $footer_id ) : '';
+
+        wp_send_json_success(
+            [
+                'header' => $header_content,
+                'footer' => $footer_content,
+            ]
+        );
     }
 }
