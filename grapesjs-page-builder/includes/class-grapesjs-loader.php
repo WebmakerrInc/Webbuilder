@@ -127,6 +127,14 @@ class Loader {
             true
         );
 
+        wp_localize_script(
+            'grapesjs-page-builder-init',
+            'plugin_dir',
+            [
+                'url' => trailingslashit( $this->plugin_url ),
+            ]
+        );
+
         wp_register_style(
             'grapesjs-page-builder-admin',
             $this->plugin_url( 'assets/css/admin.css' ),
