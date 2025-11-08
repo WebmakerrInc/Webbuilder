@@ -56,15 +56,37 @@
                     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
                 ],
             },
+            plugins: ['gjs-blocks-basic', 'grapesjs-blocks-basic'],
+            pluginsOpts: {
+                'grapesjs-blocks-basic': {
+                    flexGrid: true,
+                    blocks: [
+                        'column1',
+                        'column2',
+                        'column3',
+                        'text',
+                        'link',
+                        'image',
+                        'video',
+                        'quote',
+                        'list',
+                        'map',
+                        'form',
+                        'button',
+                    ],
+                },
+            },
         });
 
         editor.Commands.remove('gjs-open-import-template');
         editor.Commands.remove('export-template');
         editor.Commands.remove('open-code');
 
-        editor.BlockManager.getAll().forEach(function (block) {
-            editor.BlockManager.remove(block.id);
-        });
+        const pluginBlocks =
+            (editor.getConfig() &&
+                editor.getConfig().pluginsOpts &&
+                editor.getConfig().pluginsOpts['grapesjs-blocks-basic'] &&
+                editor.getConfig().pluginsOpts['grapesjs-blocks-basic'].blocks) || [];
 
         const safeBlocks = [
             {
@@ -191,6 +213,18 @@
                     '</section>',
             },
         ];
+
+        const allowedBlocks = new Set(
+            pluginBlocks.concat(safeBlocks.map(function (block) {
+                return block.id;
+            }))
+        );
+
+        editor.BlockManager.getAll().forEach(function (block) {
+            if (!allowedBlocks.has(block.id)) {
+                editor.BlockManager.remove(block.id);
+            }
+        });
 
         safeBlocks.forEach(function (block) {
             editor.BlockManager.add(block.id, {

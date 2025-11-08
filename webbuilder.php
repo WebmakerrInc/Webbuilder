@@ -67,12 +67,25 @@ class WebBuilder_Pro {
 
         wp_enqueue_style( 'grapesjs', 'https://unpkg.com/grapesjs@0.21.7/dist/css/grapes.min.css', [], '0.21.7' );
         wp_enqueue_script( 'grapesjs', 'https://unpkg.com/grapesjs@0.21.7/dist/grapes.min.js', [], '0.21.7', true );
+        wp_enqueue_script(
+            'grapesjs-blocks-basic',
+            'https://unpkg.com/grapesjs-blocks-basic@0.1.10/dist/grapesjs-blocks-basic.min.js',
+            [ 'grapesjs' ],
+            null,
+            true
+        );
         wp_enqueue_style( 'tailwind', 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css', [], '2.2.19' );
         wp_enqueue_style( 'font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', [], '6.5.1' );
 
         wp_enqueue_style( 'webbuilder-pro-admin', plugins_url( 'assets/css/admin.css', __FILE__ ), [], '1.0.0' );
 
-        wp_enqueue_script( 'webbuilder-pro-init', plugins_url( 'assets/js/builder-init.js', __FILE__ ), [ 'grapesjs' ], '1.0.0', true );
+        wp_enqueue_script(
+            'webbuilder-pro-init',
+            plugins_url( 'assets/js/builder-init.js', __FILE__ ),
+            [ 'grapesjs', 'grapesjs-blocks-basic' ],
+            '1.0.0',
+            true
+        );
 
         $post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
         $post    = $post_id ? get_post( $post_id ) : null;
