@@ -11,12 +11,24 @@
         const initialMarkup = container.innerHTML;
         container.innerHTML = '';
 
+        const pluginUrl = (typeof webbuilderData !== 'undefined' && webbuilderData.pluginUrl) ? webbuilderData.pluginUrl : '';
+
+        const canvasStyles = [
+            pluginUrl ? `${pluginUrl}assets/vendor/grapesjs/grapes.min.css` : null,
+            pluginUrl ? `${pluginUrl}assets/css/admin.css` : null,
+            'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css'
+        ].filter(Boolean);
+
         const editorInstance = grapesjs.init({
             container: '#webbuilder-editor',
             height: 'calc(100vh - 140px)',
             fromElement: false,
             storageManager: false,
             styleManager: { clearProperties: true },
+            canvas: {
+                styles: canvasStyles,
+                scripts: []
+            },
             plugins: [
                 'gjs-blocks-basic',
                 'grapesjs-plugin-forms',

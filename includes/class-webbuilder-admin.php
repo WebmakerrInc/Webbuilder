@@ -160,6 +160,7 @@ class Webbuilder_Admin {
             [
                 'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
                 'nonce'    => wp_create_nonce( 'webbuilder_load_template' ),
+                'pluginUrl'=> $assets_url,
                 'templates'=> $selector_data['templates'],
                 'pages'    => $selector_data['pages'],
                 'messages' => [
