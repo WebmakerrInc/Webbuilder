@@ -73,6 +73,11 @@ class Webbuilder_Admin {
         }
 
         $assets_url = WEBBUILDER_PLUGIN_URL;
+        $post_id    = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+        if ( $post_id && ! get_post( $post_id ) ) {
+            $post_id = 0;
+        }
 
         wp_enqueue_style(
             'webbuilder-grapesjs',
@@ -112,11 +117,17 @@ class Webbuilder_Admin {
             [
                 'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
                 'nonce'    => wp_create_nonce( 'webbuilder_load_template' ),
+                'restUrl'  => trailingslashit( rest_url( 'webbuilder/v1' ) ),
+                'restNonce'=> wp_create_nonce( 'wp_rest' ),
+                'postId'   => $post_id,
                 'templates'=> $selector_data['templates'],
                 'pages'    => $selector_data['pages'],
                 'messages' => [
-                    'loadSuccess' => __( 'Template loaded successfully.', 'webbuilder' ),
-                    'loadError'   => __( 'Unable to load the selected template.', 'webbuilder' ),
+                    'loadSuccess'      => __( 'Template loaded successfully.', 'webbuilder' ),
+                    'loadError'        => __( 'Unable to load the selected template.', 'webbuilder' ),
+                    'saveSuccess'      => __( 'Page saved successfully.', 'webbuilder' ),
+                    'saveError'        => __( 'Unable to save the page.', 'webbuilder' ),
+                    'loadExistingError'=> __( 'Unable to load existing content for this page.', 'webbuilder' ),
                 ],
             ]
         );

@@ -32,6 +32,9 @@ $selector_data = webbuilder_get_template_selector_data();
         <button type="button" class="button webbuilder-load-button" id="webbuilder-load-template">
             <?php esc_html_e( 'Load Template', 'webbuilder' ); ?>
         </button>
+        <button type="button" class="button button-primary webbuilder-save-button" id="webbuilder-save-page">
+            <?php esc_html_e( 'Save Page', 'webbuilder' ); ?>
+        </button>
         <div class="webbuilder-notice" id="webbuilder-notice" role="status" aria-live="polite"></div>
     </div>
     <div id="webbuilder-editor"></div>
