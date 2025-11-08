@@ -120,6 +120,26 @@ class Webbuilder_Admin {
                 ],
             ]
         );
+
+        global $post;
+
+        $post_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
+
+        if ( ! $post_id && $post instanceof WP_Post ) {
+            $post_id = $post->ID;
+        }
+
+        $preview_url = $post_id ? get_permalink( $post_id ) : '';
+
+        wp_localize_script(
+            'webbuilder-init',
+            'webbuilder_vars',
+            [
+                'ajaxurl'     => admin_url( 'admin-ajax.php' ),
+                'post_id'     => $post_id,
+                'preview_url' => $preview_url,
+            ]
+        );
     }
 
     /**

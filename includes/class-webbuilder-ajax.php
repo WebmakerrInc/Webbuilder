@@ -21,6 +21,7 @@ class Webbuilder_Ajax {
      */
     public function register( Webbuilder_Loader $loader ) {
         $loader->add_action( 'wp_ajax_webbuilder_load_template', $this, 'load_template' );
+        $loader->add_action( 'wp_ajax_webbuilder_save_page', $this, 'save_page' );
     }
 
     /**
@@ -67,5 +68,42 @@ class Webbuilder_Ajax {
                 'html' => $contents,
             ]
         );
+    }
+
+    /**
+     * Save the current editor content to the selected page.
+     */
+    public function save_page() {
+        $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+        $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
+
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+            wp_send_json_error( [ 'message' => __( 'Permission denied or invalid post.', 'webbuilder' ) ], 403 );
+        }
+
+        $kses_removed = false;
+
+        if ( has_filter( 'content_save_pre', 'wp_filter_post_kses' ) ) {
+            remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
+            $kses_removed = true;
+        }
+
+        $result = wp_update_post(
+            [
+                'ID'           => $post_id,
+                'post_content' => wp_kses_post( $content ),
+            ],
+            true
+        );
+
+        if ( $kses_removed ) {
+            add_filter( 'content_save_pre', 'wp_filter_post_kses' );
+        }
+
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( [ 'message' => __( 'Unable to save the page content.', 'webbuilder' ) ], 500 );
+        }
+
+        wp_send_json_success( [ 'message' => __( 'Page saved successfully.', 'webbuilder' ) ] );
     }
 }

@@ -143,3 +143,15 @@
     border: 1px solid #4a4a4a;
     height: 32px !important;
 }
+
+.fa-save,
+.fa-eye {
+    color: #01C468;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.fa-save:hover,
+.fa-eye:hover {
+    color: #00b05d;
+}

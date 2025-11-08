@@ -19,9 +19,17 @@
 
     const editor = initEditor();
 
-    if (!editor || typeof webbuilderData === 'undefined') {
+    if (!editor) {
         return;
     }
+
+    const builderData = typeof webbuilderData !== 'undefined' ? webbuilderData : null;
+
+    if (!builderData) {
+        return;
+    }
+
+    const runtimeVars = typeof webbuilder_vars !== 'undefined' ? webbuilder_vars : null;
 
     const templateSelect = document.getElementById('webbuilder-template-select');
     const pageSelect = document.getElementById('webbuilder-page-select');
@@ -52,9 +60,9 @@
         params.append('action', 'webbuilder_load_template');
         params.append('template', template);
         params.append('page', page);
-        params.append('_ajax_nonce', webbuilderData.nonce);
+        params.append('_ajax_nonce', builderData.nonce);
 
-        return fetch(webbuilderData.ajaxUrl, {
+        return fetch(builderData.ajaxUrl, {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
@@ -81,7 +89,7 @@
             const page = pageSelect.value;
 
             if (!template || !page) {
-                setNotice(webbuilderData.messages.loadError, 'error');
+                setNotice(builderData.messages.loadError, 'error');
                 return;
             }
 
@@ -95,15 +103,81 @@
                     }
 
                     editor.setComponents(response.data ? response.data.html : response.html);
-                    setNotice(webbuilderData.messages.loadSuccess, 'success');
+                    setNotice(builderData.messages.loadSuccess, 'success');
                 })
                 .catch(() => {
-                    setNotice(webbuilderData.messages.loadError, 'error');
+                    setNotice(builderData.messages.loadError, 'error');
                 })
                 .finally(() => {
                     loadButton.classList.remove('is-loading');
                     loadButton.removeAttribute('disabled');
                 });
+        });
+    }
+
+    if (runtimeVars) {
+        editor.Panels.addButton('options', {
+            id: 'save-page',
+            className: 'fa fa-save',
+            command: 'save-page',
+            attributes: { title: 'Save Page' },
+        });
+
+        editor.Commands.add('save-page', {
+            run: function (editorInstance) {
+                const postID = runtimeVars.post_id;
+
+                if (!postID) {
+                    window.alert('⚠️ Cannot save: No page selected.');
+                    return;
+                }
+
+                const params = new URLSearchParams();
+                params.append('action', 'webbuilder_save_page');
+                params.append('post_id', postID);
+                params.append('content', editorInstance.getHtml());
+
+                fetch(runtimeVars.ajaxurl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                    body: params.toString(),
+                })
+                    .then((response) => response.json())
+                    .then((result) => {
+                        if (result && result.success) {
+                            const message = result.data && result.data.message ? result.data.message : 'Page saved successfully!';
+                            editorInstance.Modal.open({
+                                title: '✅ Saved',
+                                content: '<p style="padding:10px;">' + message + '</p>',
+                            });
+                            setTimeout(() => editorInstance.Modal.close(), 1500);
+                        } else {
+                            const errorMessage = result && result.data && result.data.message ? result.data.message : 'Save failed.';
+                            window.alert('❌ Save failed: ' + errorMessage);
+                        }
+                    })
+                    .catch(() => {
+                        window.alert('⚠️ Network error while saving.');
+                    });
+            },
+        });
+
+        editor.Panels.addButton('options', {
+            id: 'preview-page',
+            className: 'fa fa-eye',
+            command: 'preview-page',
+            attributes: { title: 'Preview Page' },
+        });
+
+        editor.Commands.add('preview-page', {
+            run: function () {
+                if (runtimeVars.preview_url) {
+                    window.open(runtimeVars.preview_url, '_blank');
+                } else {
+                    window.alert('⚠️ Preview URL is not available.');
+                }
+            },
         });
     }
 })(jQuery);
