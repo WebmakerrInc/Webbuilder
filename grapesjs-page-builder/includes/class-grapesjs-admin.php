@@ -43,6 +43,11 @@ class Admin {
         $this->loader->enqueue_admin_assets();
 
         $post_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $styles  = '';
+
+        if ( $post_id > 0 ) {
+            $styles = (string) get_post_meta( $post_id, '_grapesjs_css', true );
+        }
 
         wp_localize_script(
             'grapesjs-page-builder-init',
@@ -51,6 +56,7 @@ class Admin {
                 'ajaxUrl' => admin_url( 'admin-ajax.php' ),
                 'nonce'   => wp_create_nonce( 'grapesjs_save_content' ),
                 'postId'  => $post_id,
+                'styles'  => $styles,
                 'strings' => [
                     'saveSuccess' => __( 'Saved successfully.', 'grapesjs-page-builder' ),
                     'saveError'   => __( 'An error occurred while saving. Please try again.', 'grapesjs-page-builder' ),
