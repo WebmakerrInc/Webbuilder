@@ -115,6 +115,7 @@ class Loader {
             'grapesjs-page-builder-init',
             $this->plugin_url( 'assets/js/grapesjs-init.js' ),
             [
+                'wp-api-fetch',
                 'grapesjs-core',
                 'grapesjs-blocks-basic',
                 'grapesjs-plugin-forms',
