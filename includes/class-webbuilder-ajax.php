@@ -37,7 +37,7 @@ class Webbuilder_Ajax {
         $template = isset( $_POST['template'] ) ? sanitize_key( wp_unslash( $_POST['template'] ) ) : '';
         $page     = isset( $_POST['page'] ) ? sanitize_key( wp_unslash( $_POST['page'] ) ) : '';
 
-        $allowed_templates = [ 'coffee-shop', 'barber', 'school' ];
+        $allowed_templates = [ 'coffee-shop', 'barber', 'school', 'business' ];
         $allowed_pages     = [ 'home', 'about', 'services', 'contact' ];
 
         if ( ! in_array( $template, $allowed_templates, true ) || ! in_array( $page, $allowed_pages, true ) ) {

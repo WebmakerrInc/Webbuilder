@@ -58,6 +58,7 @@ function webbuilder_get_template_selector_data() {
             'coffee-shop' => __( 'Coffee Shop', 'webbuilder' ),
             'barber'      => __( 'Barber', 'webbuilder' ),
             'school'      => __( 'School', 'webbuilder' ),
+            'business'    => __( 'Business', 'webbuilder' ),
         ],
         'pages'     => [
             'home'     => __( 'Home', 'webbuilder' ),
