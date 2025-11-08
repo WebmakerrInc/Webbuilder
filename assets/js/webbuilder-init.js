@@ -114,6 +114,35 @@
 
     const TEMPLATE_STYLE_ATTR = 'data-webbuilder-template-style';
     let activeTemplateStyle = '';
+    const ACTIVE_TEMPLATE_STORAGE_KEY = 'webbuilder_active_template';
+
+    const getStoredTemplateSlug = () => {
+        try {
+            if (typeof window === 'undefined' || !window.localStorage) {
+                return '';
+            }
+
+            return window.localStorage.getItem(ACTIVE_TEMPLATE_STORAGE_KEY) || '';
+        } catch (err) {
+            return '';
+        }
+    };
+
+    const setStoredTemplateSlug = (value) => {
+        try {
+            if (typeof window === 'undefined' || !window.localStorage) {
+                return;
+            }
+
+            if (value) {
+                window.localStorage.setItem(ACTIVE_TEMPLATE_STORAGE_KEY, value);
+            } else {
+                window.localStorage.removeItem(ACTIVE_TEMPLATE_STORAGE_KEY);
+            }
+        } catch (err) {
+            // Ignore storage access errors (private browsing, etc.).
+        }
+    };
 
     const applyTemplateStyles = (editorInstance, baseUrl, templateName) => {
         const doc = getCanvasDocument(editorInstance);
@@ -452,9 +481,46 @@
     const starterTemplates = builderData && builderData.starterTemplates ? builderData.starterTemplates : {};
     const pluginUrl = builderData && builderData.pluginUrl ? builderData.pluginUrl : '';
     const templateStyleBaseUrl = (pluginBaseUrl && pluginBaseUrl.trim()) ? pluginBaseUrl : pluginUrl;
+    const savedTemplateSlug = runtimeVars && typeof runtimeVars.active_template === 'string' ? runtimeVars.active_template : '';
+    const storedTemplateSlug = getStoredTemplateSlug();
+
+    if (savedTemplateSlug) {
+        currentTemplateSlug = savedTemplateSlug;
+        setStoredTemplateSlug(savedTemplateSlug);
+    } else if (storedTemplateSlug) {
+        currentTemplateSlug = storedTemplateSlug;
+    }
+
     const refreshCanvasAssets = () => {
         ensureCanvasGlobals(editor, canvasStyleList, canvasScriptList);
         applyTemplateStyles(editor, templateStyleBaseUrl, currentTemplateSlug);
+    };
+
+    const setActiveTemplate = (templateName, options = {}) => {
+        const opts = typeof options === 'object' && options ? options : {};
+        const persist = typeof opts.persist === 'boolean' ? opts.persist : true;
+        const refresh = typeof opts.refresh === 'boolean' ? opts.refresh : true;
+        const slug = typeof templateName === 'string' ? templateName.trim() : '';
+
+        currentTemplateSlug = slug;
+
+        if (persist) {
+            if (slug) {
+                setStoredTemplateSlug(slug);
+            } else {
+                setStoredTemplateSlug('');
+            }
+        }
+
+        if (refresh) {
+            refreshCanvasAssets();
+        } else {
+            applyTemplateStyles(editor, templateStyleBaseUrl, currentTemplateSlug);
+        }
+    };
+
+    window.loadTemplateStyles = function (templateName) {
+        setActiveTemplate(templateName);
     };
 
     editor.on('load', refreshCanvasAssets);
@@ -738,8 +804,7 @@
                         applyDirectMarkup(editor, markupData);
                     }
 
-                    currentTemplateSlug = template;
-                    refreshCanvasAssets();
+                    setActiveTemplate(template);
                     setNotice(runtimeMessages.loadSuccess, 'success');
                 })
                 .catch(() => {
@@ -780,6 +845,9 @@
                     content,
                     _webbuilder_used: '1'
                 });
+
+                const templateForSave = currentTemplateSlug || getStoredTemplateSlug();
+                body.append('template_name', templateForSave || '');
 
                 fetch(runtimeVars.ajaxurl, {
                     method: 'POST',

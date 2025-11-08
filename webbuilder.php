@@ -558,3 +558,58 @@ function webbuilder_get_assigned_template_html( $post_type, $page_id = null ) {
 
     return $template_id ? get_post_field( 'post_content', $template_id ) : '';
 }
+
+add_action( 'wp_enqueue_scripts', 'webbuilder_enqueue_template_assets' );
+
+/**
+ * Ensure template styles and scripts are available on the front end.
+ */
+function webbuilder_enqueue_template_assets() {
+    if ( ! is_singular( [ 'page', 'webbuilder_header', 'webbuilder_footer' ] ) ) {
+        return;
+    }
+
+    $post_id = get_queried_object_id();
+
+    if ( ! $post_id ) {
+        return;
+    }
+
+    $template_slug = get_post_meta( $post_id, '_webbuilder_template', true );
+    $template_slug = $template_slug ? sanitize_title( $template_slug ) : '';
+
+    wp_enqueue_style(
+        'webbuilder-bootstrap-css',
+        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
+        [],
+        '5.3.2'
+    );
+
+    wp_enqueue_style(
+        'webbuilder-shared-styles',
+        WEBBUILDER_PLUGIN_URL . 'templates-library/shared.css',
+        [ 'webbuilder-bootstrap-css' ],
+        WEBBUILDER_VERSION
+    );
+
+    if ( $template_slug ) {
+        $template_path = WEBBUILDER_PLUGIN_DIR . 'templates-library/' . $template_slug . '/style.css';
+
+        if ( file_exists( $template_path ) ) {
+            wp_enqueue_style(
+                'webbuilder-template-' . $template_slug,
+                WEBBUILDER_PLUGIN_URL . 'templates-library/' . $template_slug . '/style.css',
+                [ 'webbuilder-shared-styles' ],
+                WEBBUILDER_VERSION
+            );
+        }
+    }
+
+    wp_enqueue_script(
+        'webbuilder-bootstrap-js',
+        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
+        [],
+        '5.3.2',
+        true
+    );
+}

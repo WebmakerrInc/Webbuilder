@@ -114,6 +114,14 @@ class Webbuilder_Ajax {
             wp_send_json_error( [ 'message' => __( 'Unable to save the page content.', 'webbuilder' ) ], 500 );
         }
 
+        $template_name = isset( $_POST['template_name'] ) ? sanitize_title( wp_unslash( $_POST['template_name'] ) ) : '';
+
+        if ( $template_name ) {
+            update_post_meta( $post_id, '_webbuilder_template', $template_name );
+        } else {
+            delete_post_meta( $post_id, '_webbuilder_template' );
+        }
+
         wp_send_json_success( [ 'message' => __( 'Page saved successfully.', 'webbuilder' ) ] );
     }
 

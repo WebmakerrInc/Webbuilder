@@ -206,8 +206,14 @@ class Webbuilder_Admin {
             $post_id = $post->ID;
         }
 
-        $preview_url = $post_id ? get_permalink( $post_id ) : '';
-        $post_type   = $post_id ? get_post_type( $post_id ) : '';
+        $preview_url      = $post_id ? get_permalink( $post_id ) : '';
+        $post_type        = $post_id ? get_post_type( $post_id ) : '';
+        $active_template  = '';
+
+        if ( $post_id ) {
+            $active_template = get_post_meta( $post_id, '_webbuilder_template', true );
+            $active_template = $active_template ? sanitize_title( $active_template ) : '';
+        }
 
         wp_localize_script(
             'webbuilder-init',
@@ -218,6 +224,7 @@ class Webbuilder_Admin {
                 'preview_url' => $preview_url,
                 'post_type'   => $post_type,
                 'layoutNonce' => wp_create_nonce( 'webbuilder_get_header_footer' ),
+                'active_template' => $active_template,
             ]
         );
     }
