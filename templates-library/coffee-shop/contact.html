@@ -1,29 +1,96 @@
-<section style="font-family: 'Helvetica Neue', Arial, sans-serif; background:#fff; padding:80px 0;">
-    <div style="max-width:900px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:40px;">
-        <div style="color:#3b2f2f;">
-            <h2 style="font-size:36px; margin-bottom:16px;">Visit Our Roastery</h2>
-            <p style="line-height:1.7; margin-bottom:24px;">123 Bean Street, Portland, OR<br>Mon – Fri 7am to 7pm · Sat – Sun 8am to 6pm</p>
-            <p style="margin-bottom:12px;"><strong>Phone:</strong> (503) 555-0123</p>
-            <p style="margin-bottom:24px;"><strong>Email:</strong> hello@brewedawakening.com</p>
-            <div style="display:flex; gap:12px;">
-                <a style="background:#c68a52; color:#fff; padding:10px 22px; border-radius:30px; text-decoration:none; font-weight:600;" href="#directions">Get Directions</a>
-                <a style="background:#2d2d2d; color:#fff; padding:10px 22px; border-radius:30px; text-decoration:none; font-weight:600;" href="#book">Book a Tasting</a>
+<section class="relative overflow-hidden bg-gradient-to-br from-amber-100 via-white to-stone-100 py-24">
+    <div class="absolute inset-0" style="background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1600&q=80'); background-size: cover; background-position: center; opacity: 0.15;"></div>
+    <div class="relative mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div class="space-y-6">
+            <span class="inline-flex items-center gap-2 rounded-full bg-amber-200/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-amber-800">
+                Visit us
+            </span>
+            <h1 class="text-4xl font-semibold text-stone-900 sm:text-5xl">We’d love to pour you a cup</h1>
+            <p class="text-stone-700">
+                Stop by our flagship café, reach out for collaborations, or book a private tasting. Our hospitality team
+                is ready to craft an experience tailored to you.
+            </p>
+            <div class="rounded-3xl bg-white/80 p-8 shadow-xl shadow-amber-300/30 backdrop-blur">
+                <h2 class="text-lg font-semibold text-stone-900">Flagship café</h2>
+                <p class="mt-2 text-stone-600">2311 Artisan Row, Suite 108<br />Portland, OR 97205</p>
+                <div class="mt-4 flex flex-col gap-2 text-sm text-stone-600">
+                    <p><span class="font-semibold text-stone-900">Weekdays:</span> 7:00 AM — 6:00 PM</p>
+                    <p><span class="font-semibold text-stone-900">Weekends:</span> 8:00 AM — 7:00 PM</p>
+                </div>
+                <a href="https://maps.google.com" class="mt-6 inline-flex items-center text-sm font-semibold text-amber-700 underline-offset-4 hover:text-amber-800 hover:underline">Get directions</a>
+            </div>
+            <div class="flex flex-wrap gap-4 text-sm text-stone-600">
+                <p class="flex items-center gap-2"><span class="inline-flex h-2 w-2 rounded-full bg-amber-500"></span>Complimentary Wi-Fi</p>
+                <p class="flex items-center gap-2"><span class="inline-flex h-2 w-2 rounded-full bg-amber-500"></span>Accessible entrance</p>
+                <p class="flex items-center gap-2"><span class="inline-flex h-2 w-2 rounded-full bg-amber-500"></span>Pet-friendly patio</p>
             </div>
         </div>
-        <form style="background:#f9f6f1; padding:32px; border-radius:18px; box-shadow:0 24px 48px rgba(0,0,0,0.05); display:flex; flex-direction:column; gap:18px;">
-            <div>
-                <label style="display:block; font-size:13px; margin-bottom:6px; color:#5f5048;">Name</label>
-                <input type="text" placeholder="Your Name" style="width:100%; padding:12px 14px; border:1px solid #e4d9cc; border-radius:8px;">
+        <div class="relative rounded-3xl bg-white p-10 shadow-2xl shadow-stone-300/70">
+            <div class="mx-auto max-w-xl">
+                <h2 class="text-2xl font-semibold text-stone-900">Let’s start a conversation</h2>
+                <p class="mt-3 text-sm text-stone-600">
+                    Share a few details and our team will respond within one business day.
+                </p>
+                <form class="mt-8 space-y-6">
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700">Name</label>
+                            <input type="text" class="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 focus:border-amber-500 focus:bg-white focus:outline-none" placeholder="Your full name" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700">Email</label>
+                            <input type="email" class="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 focus:border-amber-500 focus:bg-white focus:outline-none" placeholder="you@example.com" />
+                        </div>
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700">Phone</label>
+                            <input type="tel" class="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 focus:border-amber-500 focus:bg-white focus:outline-none" placeholder="(555) 123-4567" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700">Topic</label>
+                            <select class="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 focus:border-amber-500 focus:bg-white focus:outline-none">
+                                <option>General inquiry</option>
+                                <option>Wholesale partnership</option>
+                                <option>Private event</option>
+                                <option>Training & consulting</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-stone-700">Message</label>
+                        <textarea rows="4" class="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 focus:border-amber-500 focus:bg-white focus:outline-none" placeholder="Tell us how we can help"></textarea>
+                    </div>
+                    <label class="flex items-center gap-3 text-sm text-stone-600">
+                        <input type="checkbox" class="h-5 w-5 rounded border-stone-300 text-amber-600 focus:ring-amber-500" />
+                        Keep me updated with seasonal releases and events.
+                    </label>
+                    <button type="submit" class="w-full rounded-full bg-amber-500 px-6 py-3 text-base font-semibold text-stone-900 transition hover:bg-amber-400">Send message</button>
+                </form>
+                <div class="mt-10 grid gap-6 rounded-2xl bg-stone-50 p-6">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-amber-500">Press & partnerships</p>
+                        <a href="mailto:press@brewedawakening.com" class="text-sm font-semibold text-stone-800">press@brewedawakening.com</a>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-amber-500">Wholesale</p>
+                        <a href="mailto:wholesale@brewedawakening.com" class="text-sm font-semibold text-stone-800">wholesale@brewedawakening.com</a>
+                    </div>
+                </div>
             </div>
-            <div>
-                <label style="display:block; font-size:13px; margin-bottom:6px; color:#5f5048;">Email</label>
-                <input type="email" placeholder="you@example.com" style="width:100%; padding:12px 14px; border:1px solid #e4d9cc; border-radius:8px;">
-            </div>
-            <div>
-                <label style="display:block; font-size:13px; margin-bottom:6px; color:#5f5048;">Message</label>
-                <textarea rows="4" placeholder="Let us know how we can help" style="width:100%; padding:12px 14px; border:1px solid #e4d9cc; border-radius:8px;"></textarea>
-            </div>
-            <button type="submit" style="background:#c68a52; color:#fff; border:none; padding:12px 24px; border-radius:30px; font-weight:600; cursor:pointer;">Send Message</button>
+        </div>
+    </div>
+</section>
+
+<section class="bg-stone-900 py-16">
+    <div class="mx-auto flex max-w-6xl flex-col gap-6 px-6 text-center text-white sm:flex-row sm:items-center sm:justify-between sm:text-left">
+        <div>
+            <h2 class="text-3xl font-semibold">Stay in the loop</h2>
+            <p class="mt-2 text-stone-300">Monthly updates featuring new single-origin arrivals and community gatherings.</p>
+        </div>
+        <form class="flex w-full max-w-lg flex-col gap-3 sm:flex-row">
+            <input type="email" placeholder="you@example.com" class="w-full rounded-full border border-transparent px-6 py-3 text-base text-stone-800 focus:border-amber-400 focus:outline-none" />
+            <button type="submit" class="rounded-full bg-amber-500 px-6 py-3 text-base font-semibold text-stone-900 transition hover:bg-amber-400">Join the brewletter</button>
         </form>
     </div>
 </section>
