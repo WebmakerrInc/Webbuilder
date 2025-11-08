@@ -1,11 +1,179 @@
 (function ($) {
     'use strict';
 
+    const resolveAssetUrl = (base, path) => {
+        if (!path) {
+            return '';
+        }
+
+        if (/^https?:\/\//i.test(path)) {
+            return path;
+        }
+
+        if (!base) {
+            return path;
+        }
+
+        const cleanBase = base.replace(/\/+$/, '/');
+        const cleanPath = path.replace(/^\/+/, '');
+
+        return cleanBase + cleanPath;
+    };
+
+    const getCanvasDocument = (editorInstance) => {
+        if (!editorInstance || !editorInstance.Canvas) {
+            return null;
+        }
+
+        const frame = editorInstance.Canvas.getFrameEl();
+
+        if (!frame) {
+            return null;
+        }
+
+        return frame.contentDocument || (frame.contentWindow && frame.contentWindow.document) || null;
+    };
+
+    const ensureStylesheet = (doc, href, attribute) => {
+        if (!doc || !doc.head || !href) {
+            return null;
+        }
+
+        const existing = Array.from(doc.querySelectorAll('link[rel="stylesheet"]')).find((link) => {
+            const linkHref = link.href || '';
+            const attrHref = link.getAttribute('href') || '';
+            return linkHref === href || attrHref === href;
+        });
+
+        if (existing) {
+            if (attribute && attribute.name && attribute.value) {
+                existing.setAttribute(attribute.name, attribute.value);
+            }
+
+            return existing;
+        }
+
+        const linkEl = doc.createElement('link');
+        linkEl.rel = 'stylesheet';
+        linkEl.href = href;
+
+        if (attribute && attribute.name && attribute.value) {
+            linkEl.setAttribute(attribute.name, attribute.value);
+        }
+
+        doc.head.appendChild(linkEl);
+
+        return linkEl;
+    };
+
+    const ensureScript = (doc, src) => {
+        if (!doc || !src) {
+            return null;
+        }
+
+        const existing = Array.from(doc.querySelectorAll('script[src]')).find((script) => {
+            const scriptSrc = script.src || '';
+            const attrSrc = script.getAttribute('src') || '';
+            return scriptSrc === src || attrSrc === src;
+        });
+
+        if (existing) {
+            return existing;
+        }
+
+        const scriptEl = doc.createElement('script');
+        scriptEl.src = src;
+        scriptEl.defer = true;
+
+        const target = doc.body || doc.head;
+
+        if (!target) {
+            return null;
+        }
+
+        target.appendChild(scriptEl);
+
+        return scriptEl;
+    };
+
+    const ensureCanvasGlobals = (editorInstance, styles, scripts) => {
+        const doc = getCanvasDocument(editorInstance);
+
+        if (!doc) {
+            return;
+        }
+
+        (styles || []).forEach((href) => {
+            ensureStylesheet(doc, href, null);
+        });
+
+        (scripts || []).forEach((src) => {
+            ensureScript(doc, src);
+        });
+    };
+
+    const TEMPLATE_STYLE_ATTR = 'data-webbuilder-template-style';
+    let activeTemplateStyle = '';
+
+    const applyTemplateStyles = (editorInstance, baseUrl, templateName) => {
+        const doc = getCanvasDocument(editorInstance);
+
+        if (!doc) {
+            return;
+        }
+
+        if (templateName && templateName === activeTemplateStyle) {
+            return;
+        }
+
+        Array.from(doc.querySelectorAll(`link[${TEMPLATE_STYLE_ATTR}]`)).forEach((node) => {
+            if (node.parentNode) {
+                node.parentNode.removeChild(node);
+            }
+        });
+
+        activeTemplateStyle = '';
+
+        if (!templateName) {
+            return;
+        }
+
+        const href = resolveAssetUrl(baseUrl, `templates-library/${templateName}/style.css`);
+
+        if (!href) {
+            return;
+        }
+
+        const linkEl = ensureStylesheet(doc, href, { name: TEMPLATE_STYLE_ATTR, value: templateName });
+
+        if (!linkEl) {
+            return;
+        }
+
+        activeTemplateStyle = templateName;
+
+        linkEl.addEventListener('error', () => {
+            if (linkEl.parentNode) {
+                linkEl.parentNode.removeChild(linkEl);
+            }
+
+            if (activeTemplateStyle === templateName) {
+                activeTemplateStyle = '';
+            }
+        });
+    };
+
     const initEditor = () => {
         const container = document.getElementById('webbuilder-editor');
 
         if (!container) {
-            return { editor: null, initialMarkup: '' };
+            return {
+                editor: null,
+                initialMarkup: '',
+                canvasStyles: [],
+                canvasScripts: [],
+                pluginBaseUrl: '',
+            };
         }
 
         const initialMarkup = container.innerHTML;
@@ -37,24 +205,17 @@
             return '';
         })();
 
-        const normalizeUrl = (base, path) => {
-            if (!path) {
-                return '';
-            }
+        const bootstrapCssCdn = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css';
+        const bootstrapJsCdn = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js';
 
-            if (/^https?:\/\//i.test(path)) {
-                return path;
-            }
+        const canvasStyleUrls = [
+            resolveAssetUrl(basePluginUrl, 'assets/js/grapesjs/css/grapes.min.css'),
+            resolveAssetUrl(basePluginUrl, 'templates-library/shared.css'),
+            resolveAssetUrl(basePluginUrl, 'assets/css/admin.css'),
+            bootstrapCssCdn,
+        ].filter(Boolean);
 
-            if (!base) {
-                return path;
-            }
-
-            const cleanBase = base.replace(/\/+$/, '/');
-            const cleanPath = path.replace(/^\/+/, '');
-
-            return cleanBase + cleanPath;
-        };
+        const canvasScriptUrls = [bootstrapJsCdn];
 
         const editorInstance = grapesjs.init({
             container: '#webbuilder-editor',
@@ -62,15 +223,8 @@
             fromElement: false,
             storageManager: false,
             canvas: {
-                styles: [
-                    normalizeUrl(basePluginUrl, 'assets/js/grapesjs/css/grapes.min.css'),
-                    normalizeUrl(basePluginUrl, 'assets/css/admin.css'),
-                    normalizeUrl(basePluginUrl, 'templates-library/shared.css'),
-                    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
-                ].filter(Boolean),
-                scripts: [
-                    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
-                ],
+                styles: canvasStyleUrls,
+                scripts: canvasScriptUrls,
             },
             styleManager: { clearProperties: true },
             plugins: [
@@ -87,7 +241,13 @@
             }
         });
 
-        return { editor: editorInstance, initialMarkup };
+        return {
+            editor: editorInstance,
+            initialMarkup,
+            canvasStyles: canvasStyleUrls,
+            canvasScripts: canvasScriptUrls,
+            pluginBaseUrl: basePluginUrl,
+        };
     };
 
     const parseMarkup = (markup) => {
@@ -267,11 +427,21 @@
         return css && css.trim() ? `<style>${css}</style>${htmlContent}` : htmlContent;
     };
 
-    const { editor, initialMarkup } = initEditor();
+    const {
+        editor,
+        initialMarkup,
+        canvasStyles,
+        canvasScripts,
+        pluginBaseUrl,
+    } = initEditor();
 
     if (!editor) {
         return;
     }
+
+    const canvasStyleList = Array.isArray(canvasStyles) ? canvasStyles : [];
+    const canvasScriptList = Array.isArray(canvasScripts) ? canvasScripts : [];
+    let currentTemplateSlug = '';
 
     const initialMarkupData = parseMarkup(initialMarkup);
     const builderData = typeof webbuilderData !== 'undefined' ? webbuilderData : null;
@@ -281,6 +451,14 @@
     const runtimeMessages = builderData && builderData.messages ? builderData.messages : {};
     const starterTemplates = builderData && builderData.starterTemplates ? builderData.starterTemplates : {};
     const pluginUrl = builderData && builderData.pluginUrl ? builderData.pluginUrl : '';
+    const templateStyleBaseUrl = (pluginBaseUrl && pluginBaseUrl.trim()) ? pluginBaseUrl : pluginUrl;
+    const refreshCanvasAssets = () => {
+        ensureCanvasGlobals(editor, canvasStyleList, canvasScriptList);
+        applyTemplateStyles(editor, templateStyleBaseUrl, currentTemplateSlug);
+    };
+
+    editor.on('load', refreshCanvasAssets);
+
     const fallbackStarter = {
         headers: 'templates-library/headers/classic.html',
         footers: 'templates-library/footers/basic.html',
@@ -357,6 +535,7 @@
                     .then((html) => {
                         editor.setComponents(html || '');
                         applyCss(editor, '');
+                        refreshCanvasAssets();
                         removeOverlay();
                     })
                     .catch(() => {
@@ -426,6 +605,7 @@
                 if (!editor.getHtml().trim()) {
                     editor.setComponents(html || '');
                     applyCss(editor, '');
+                    refreshCanvasAssets();
                 }
             })
             .catch(() => {});
@@ -438,6 +618,7 @@
             .then((result) => {
                 if (result && result.success && result.data) {
                     injectStructure(editor, initialMarkupData, result.data.header || '', result.data.footer || '');
+                    refreshCanvasAssets();
                     structureReady = true;
                 }
             })
@@ -445,11 +626,13 @@
             .finally(() => {
                 if (!structureReady) {
                     injectStructure(editor, initialMarkupData, '', '');
+                    refreshCanvasAssets();
                     structureReady = true;
                 }
             });
     } else {
         applyDirectMarkup(editor, initialMarkupData);
+        refreshCanvasAssets();
         maybeShowStarterModal();
     }
 
@@ -555,6 +738,8 @@
                         applyDirectMarkup(editor, markupData);
                     }
 
+                    currentTemplateSlug = template;
+                    refreshCanvasAssets();
                     setNotice(runtimeMessages.loadSuccess, 'success');
                 })
                 .catch(() => {
