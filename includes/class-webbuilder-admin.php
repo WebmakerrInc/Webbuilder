@@ -168,6 +168,12 @@ class Webbuilder_Admin {
             true
         );
 
+        wp_add_inline_script(
+            'webbuilder-init',
+            'var plugin_dir = ' . wp_json_encode( WEBBUILDER_PLUGIN_URL ) . ';',
+            'before'
+        );
+
         $selector_data      = webbuilder_get_template_selector_data();
         $starter_templates  = webbuilder_get_starter_templates();
 
