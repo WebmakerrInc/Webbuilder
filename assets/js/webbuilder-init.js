@@ -16,7 +16,19 @@
             height: 'calc(100vh - 140px)',
             fromElement: false,
             storageManager: false,
-            styleManager: { clearProperties: true }
+            styleManager: { clearProperties: true },
+            plugins: [
+                'gjs-blocks-basic',
+                'grapesjs-plugin-forms',
+                'grapesjs-navbar',
+                'grapesjs-component-countdown',
+                'grapesjs-style-flexbox'
+            ],
+            pluginsOpts: {
+                'gjs-blocks-basic': {
+                    flexGrid: true
+                }
+            }
         });
 
         return { editor: editorInstance, initialMarkup };
@@ -168,19 +180,22 @@
                     return;
                 }
 
-                const params = new URLSearchParams();
-                params.append('action', 'webbuilder_save_page');
-                params.append('post_id', postID);
                 const html = editorInstance.getHtml();
                 const css = editorInstance.getCss();
                 const content = css && css.trim() ? `<style>${css}</style>${html}` : html;
-                params.append('content', content);
+
+                const body = new URLSearchParams({
+                    action: 'webbuilder_save_page',
+                    post_id: postID,
+                    content,
+                    _webbuilder_used: '1'
+                });
 
                 fetch(runtimeVars.ajaxurl, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-                    body: params.toString(),
+                    body: body.toString(),
                 })
                     .then((response) => response.json())
                     .then((result) => {

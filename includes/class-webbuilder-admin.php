@@ -97,9 +97,57 @@ class Webbuilder_Admin {
         );
 
         wp_enqueue_script(
+            'grapesjs-blocks-basic',
+            $assets_url . 'assets/js/grapesjs/plugins/grapesjs-blocks-basic.min.js',
+            [ 'webbuilder-grapesjs' ],
+            '1.0.2',
+            true
+        );
+
+        wp_enqueue_script(
+            'grapesjs-plugin-forms',
+            $assets_url . 'assets/js/grapesjs/plugins/grapesjs-plugin-forms.min.js',
+            [ 'webbuilder-grapesjs' ],
+            '2.0.6',
+            true
+        );
+
+        wp_enqueue_script(
+            'grapesjs-navbar',
+            $assets_url . 'assets/js/grapesjs/plugins/grapesjs-navbar.min.js',
+            [ 'webbuilder-grapesjs' ],
+            '1.0.2',
+            true
+        );
+
+        wp_enqueue_script(
+            'grapesjs-component-countdown',
+            $assets_url . 'assets/js/grapesjs/plugins/grapesjs-component-countdown.min.js',
+            [ 'webbuilder-grapesjs' ],
+            '1.0.2',
+            true
+        );
+
+        wp_enqueue_script(
+            'grapesjs-style-flexbox',
+            $assets_url . 'assets/js/grapesjs/plugins/grapesjs-style-flexbox.min.js',
+            [ 'webbuilder-grapesjs' ],
+            '1.0.0',
+            true
+        );
+
+        wp_enqueue_script(
             'webbuilder-init',
             $assets_url . 'assets/js/webbuilder-init.js',
-            [ 'webbuilder-grapesjs', 'jquery' ],
+            [
+                'webbuilder-grapesjs',
+                'grapesjs-blocks-basic',
+                'grapesjs-plugin-forms',
+                'grapesjs-navbar',
+                'grapesjs-component-countdown',
+                'grapesjs-style-flexbox',
+                'jquery',
+            ],
             $this->version,
             true
         );
