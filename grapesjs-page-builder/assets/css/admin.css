@@ -16,3 +16,22 @@
 .grapesjs-notice {
   margin-bottom: 15px;
 }
+
+.grapesjs-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 10px;
+}
+
+.grapesjs-save-status {
+  font-weight: 600;
+}
+
+.grapesjs-status--success {
+  color: #0a882d;
+}
+
+.grapesjs-status--error {
+  color: #d63638;
+}
