@@ -64,6 +64,7 @@ if ( ! $post_id ) {
 }
 
 $selector_data = webbuilder_get_template_selector_data();
+$has_templates = ! empty( $selector_data['registry'] );
 $post_content = get_post_field( 'post_content', $post_id );
 $allowed_html = wp_kses_allowed_html( 'post' );
 $allowed_html['style'] = [
@@ -75,22 +76,31 @@ $post_content = $post_content ? wp_kses( $post_content, $allowed_html ) : '';
 ?>
 <div class="wrap webbuilder-wrap">
     <div class="webbuilder-template-bar" role="region" aria-label="<?php esc_attr_e( 'Template Selector', 'webbuilder' ); ?>">
-        <label for="webbuilder-template-select"><?php esc_html_e( 'Select Template', 'webbuilder' ); ?></label>
-        <select id="webbuilder-template-select">
-            <?php foreach ( $selector_data['templates'] as $template_key => $template_label ) : ?>
-                <option value="<?php echo esc_attr( $template_key ); ?>"><?php echo esc_html( $template_label ); ?></option>
-            <?php endforeach; ?>
+        <label for="webbuilder-template-select"><?php esc_html_e( 'Select Business', 'webbuilder' ); ?></label>
+        <select
+            id="webbuilder-template-select"
+            class="webbuilder-select bg-white border border-gray-300 rounded-md text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-100 disabled:text-gray-400"
+            <?php disabled( ! $has_templates ); ?>
+        >
+            <option value=""><?php esc_html_e( 'Choose a business type', 'webbuilder' ); ?></option>
         </select>
 
-        <label for="webbuilder-page-select"><?php esc_html_e( 'Select Page', 'webbuilder' ); ?></label>
-        <select id="webbuilder-page-select">
-            <?php foreach ( $selector_data['pages'] as $page_key => $page_label ) : ?>
-                <option value="<?php echo esc_attr( $page_key ); ?>"><?php echo esc_html( $page_label ); ?></option>
-            <?php endforeach; ?>
+        <label for="webbuilder-page-select"><?php esc_html_e( 'Select Page Template', 'webbuilder' ); ?></label>
+        <select
+            id="webbuilder-page-select"
+            class="webbuilder-select bg-white border border-gray-300 rounded-md text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-100 disabled:text-gray-400"
+            <?php disabled( ! $has_templates ); ?>
+        >
+            <option value=""><?php esc_html_e( 'Choose a page layout', 'webbuilder' ); ?></option>
         </select>
 
-        <button type="button" class="webbuilder-load-button" id="webbuilder-load-template">
-            <?php esc_html_e( 'Load Template', 'webbuilder' ); ?>
+        <button
+            type="button"
+            class="webbuilder-load-button inline-flex items-center justify-center px-4 py-2 bg-emerald-500 text-white rounded-md text-sm font-medium shadow-sm hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            id="webbuilder-load-template"
+            <?php disabled( ! $has_templates ); ?>
+        >
+            <?php esc_html_e( 'Load Page', 'webbuilder' ); ?>
         </button>
         <div class="webbuilder-notice" id="webbuilder-notice" role="status" aria-live="polite"></div>
     </div>

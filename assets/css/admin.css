@@ -21,36 +21,43 @@
 }
 
 .webbuilder-template-bar select {
-    background: #3a3a3a;
-    border: 1px solid #4a4a4a;
-    color: #f0f0f0;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #1f2937;
     font-size: 13px;
-    padding: 5px 8px;
-    height: 32px;
-    border-radius: 4px;
+    padding: 6px 10px;
+    min-height: 32px;
+    border-radius: 6px;
     outline: none;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .webbuilder-template-bar select:focus {
-    border-color: #01C468;
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.webbuilder-template-bar select:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
 }
 
 .webbuilder-template-bar button {
-    background: #01C468;
+    background: #059669;
     border: none;
     color: #fff;
     font-weight: 600;
     font-size: 13px;
-    padding: 6px 16px;
-    height: 32px;
-    border-radius: 4px;
+    padding: 8px 18px;
+    min-height: 32px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s ease;
 }
 
 .webbuilder-template-bar button:hover {
-    background: #00b05d;
+    background: #047857;
 }
 
 .webbuilder-load-button.is-loading {

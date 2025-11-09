@@ -37,10 +37,17 @@ class Webbuilder_Ajax {
         $template = isset( $_POST['template'] ) ? sanitize_key( wp_unslash( $_POST['template'] ) ) : '';
         $page     = isset( $_POST['page'] ) ? sanitize_key( wp_unslash( $_POST['page'] ) ) : '';
 
-        $allowed_templates = [ 'coffee-shop', 'barber', 'school', 'business' ];
-        $allowed_pages     = [ 'home', 'about', 'services', 'contact' ];
+        $registry = webbuilder_build_template_registry();
+        $match    = null;
 
-        if ( ! in_array( $template, $allowed_templates, true ) || ! in_array( $page, $allowed_pages, true ) ) {
+        foreach ( $registry as $entry ) {
+            if ( $template === $entry['category'] && $page === $entry['slug'] ) {
+                $match = $entry;
+                break;
+            }
+        }
+
+        if ( ! $match || empty( $match['relative_path'] ) ) {
             wp_send_json_error( [ 'message' => __( 'Invalid template selection.', 'webbuilder' ) ], 400 );
         }
 
@@ -50,7 +57,7 @@ class Webbuilder_Ajax {
             wp_send_json_error( [ 'message' => __( 'Template directory is missing.', 'webbuilder' ) ], 500 );
         }
 
-        $file_path = $base_dir . '/' . $template . '/' . $page . '.html';
+        $file_path = $base_dir . '/' . ltrim( $match['relative_path'], '/' );
         $real_path = realpath( $file_path );
 
         if ( ! $real_path || strpos( $real_path, $base_dir ) !== 0 || ! file_exists( $real_path ) ) {
