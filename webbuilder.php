@@ -54,21 +54,104 @@ webbuilder_run();
  */
 function webbuilder_get_template_selector_data() {
     $data = [
-        'templates' => [
-            'coffee-shop' => __( 'Coffee Shop', 'webbuilder' ),
-            'barber'      => __( 'Barber', 'webbuilder' ),
-            'school'      => __( 'School', 'webbuilder' ),
-            'business'    => __( 'Business', 'webbuilder' ),
-        ],
-        'pages'     => [
-            'home'     => __( 'Home', 'webbuilder' ),
-            'about'    => __( 'About', 'webbuilder' ),
-            'services' => __( 'Services', 'webbuilder' ),
-            'contact'  => __( 'Contact', 'webbuilder' ),
-        ],
+        'registry' => webbuilder_build_template_registry(),
     ];
 
     return apply_filters( 'webbuilder/template_selector_data', $data );
+}
+
+/**
+ * Convert a slug or filename into a human readable label.
+ *
+ * @param string $slug Slug value.
+ * @return string
+ */
+function webbuilder_humanize_slug( $slug ) {
+    $slug = trim( preg_replace( '/[\s_\-]+/', ' ', (string) $slug ) );
+
+    return $slug ? ucwords( $slug ) : '';
+}
+
+/**
+ * Build a registry of all available HTML templates.
+ *
+ * @return array<int, array<string, string>>
+ */
+function webbuilder_build_template_registry() {
+    $base_dir = trailingslashit( WEBBUILDER_PLUGIN_DIR . 'templates-library' );
+
+    if ( ! is_dir( $base_dir ) ) {
+        return [];
+    }
+
+    $base_url = trailingslashit( WEBBUILDER_PLUGIN_URL . 'templates-library' );
+
+    $registry = [];
+
+    try {
+        $directory_iterator = new RecursiveDirectoryIterator( $base_dir, FilesystemIterator::SKIP_DOTS );
+        $iterator           = new RecursiveIteratorIterator( $directory_iterator );
+    } catch ( UnexpectedValueException $exception ) {
+        unset( $exception );
+
+        return [];
+    }
+
+    foreach ( $iterator as $file_info ) {
+        if ( ! $file_info instanceof SplFileInfo || ! $file_info->isFile() ) {
+            continue;
+        }
+
+        if ( 'html' !== strtolower( $file_info->getExtension() ) ) {
+            continue;
+        }
+
+        $relative_path = ltrim( str_replace( '\\', '/', substr( $file_info->getPathname(), strlen( $base_dir ) ) ), '/' );
+
+        if ( '' === $relative_path ) {
+            continue;
+        }
+
+        $segments = explode( '/', $relative_path );
+        $category = array_shift( $segments );
+
+        if ( ! $category ) {
+            continue;
+        }
+
+        $template_slug = pathinfo( $relative_path, PATHINFO_FILENAME );
+
+        if ( '' === $template_slug ) {
+            continue;
+        }
+
+        $encoded_path = implode( '/', array_map( 'rawurlencode', explode( '/', $relative_path ) ) );
+
+        $registry[] = [
+            'id'            => md5( $relative_path ),
+            'category'       => $category,
+            'category_label' => webbuilder_humanize_slug( $category ),
+            'slug'           => $template_slug,
+            'name'           => webbuilder_humanize_slug( $template_slug ),
+            'path'           => esc_url_raw( $base_url . $encoded_path ),
+            'relative_path'  => $relative_path,
+        ];
+    }
+
+    usort(
+        $registry,
+        static function ( $a, $b ) {
+            $category_compare = strcmp( $a['category_label'], $b['category_label'] );
+
+            if ( 0 !== $category_compare ) {
+                return $category_compare;
+            }
+
+            return strcmp( $a['name'], $b['name'] );
+        }
+    );
+
+    return apply_filters( 'webbuilder/template_registry', $registry );
 }
 
 add_filter( 'theme_page_templates', 'webbuilder_register_canvas_template' );

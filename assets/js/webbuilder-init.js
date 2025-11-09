@@ -113,66 +113,89 @@
         noticeEl.classList.remove('is-success', 'is-error');
     };
 
-    const requestTemplate = (template, page) => {
-        const params = new URLSearchParams();
-        params.append('action', 'webbuilder_load_template');
-        params.append('template', template);
-        params.append('page', page);
-        params.append('_ajax_nonce', builderData.nonce);
+    const parseTemplateContent = (rawHtml) => {
+        if (!rawHtml || !rawHtml.trim()) {
+            return { html: '', css: '' };
+        }
 
-        return fetch(builderData.ajaxUrl, {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            },
-            body: params.toString(),
-        }).then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(rawHtml, 'text/html');
+        const styleNodes = doc.querySelectorAll('style');
+        let combinedCss = '';
+
+        styleNodes.forEach((styleNode) => {
+            combinedCss += (styleNode.innerHTML || '') + '\n';
+            styleNode.remove();
         });
+
+        const html = doc.body ? doc.body.innerHTML.trim() : rawHtml.trim();
+
+        return {
+            html,
+            css: combinedCss.trim(),
+        };
     };
 
-    if (loadButton) {
-        loadButton.addEventListener('click', () => {
-            if (!templateSelect || !pageSelect) {
-                return;
-            }
+    const namespace = typeof window.Webbuilder !== 'undefined' ? window.Webbuilder : null;
+    const createRegistry = namespace && typeof namespace.useTemplateRegistry === 'function'
+        ? namespace.useTemplateRegistry
+        : null;
+    const TemplateSelector = namespace && typeof namespace.TemplateSelector === 'function'
+        ? namespace.TemplateSelector
+        : null;
+    const loadTemplateFile = namespace && typeof namespace.loadTemplate === 'function'
+        ? namespace.loadTemplate
+        : null;
 
-            clearNotice();
+    if (TemplateSelector && createRegistry && loadTemplateFile && templateSelect && pageSelect && loadButton) {
+        const registry = createRegistry(builderData.registry || []);
 
-            const template = templateSelect.value;
-            const page = pageSelect.value;
+        if (!registry.hasTemplates) {
+            setNotice(builderData.messages.noTemplates, 'error');
+        }
 
-            if (!template || !page) {
+        const selector = new TemplateSelector({
+            registry,
+            businessSelect: templateSelect,
+            templateSelect: pageSelect,
+            loadButton,
+            onLoad: (entry) => {
+                clearNotice();
+                return loadTemplateFile(entry.path);
+            },
+            onLoadSuccess: (html) => {
+                const parsed = parseTemplateContent(html);
+
+                editor.CssComposer.getAll().reset();
+                editor.setStyle('');
+
+                if (parsed.html) {
+                    editor.setComponents(parsed.html);
+                }
+
+                if (parsed.css) {
+                    editor.setStyle(parsed.css);
+                }
+
+                setNotice(builderData.messages.loadSuccess, 'success');
+            },
+            onLoadError: (error) => {
+                if (window.console && typeof window.console.error === 'function') {
+                    window.console.error('Template load failed', error);
+                }
                 setNotice(builderData.messages.loadError, 'error');
-                return;
-            }
-
-            loadButton.classList.add('is-loading');
-            loadButton.setAttribute('disabled', 'disabled');
-
-            requestTemplate(template, page)
-                .then((response) => {
-                    if (!response || !response.success) {
-                        throw new Error('Invalid response');
-                    }
-
-                    editor.CssComposer.getAll().reset();
-                    editor.setStyle('');
-                    editor.setComponents(response.data ? response.data.html : response.html);
-                    setNotice(builderData.messages.loadSuccess, 'success');
-                })
-                .catch(() => {
-                    setNotice(builderData.messages.loadError, 'error');
-                })
-                .finally(() => {
-                    loadButton.classList.remove('is-loading');
-                    loadButton.removeAttribute('disabled');
-                });
+            },
+            onInvalidSelection: () => {
+                setNotice(builderData.messages.loadError, 'error');
+            },
         });
+
+        selector.init();
+
+        templateSelect.addEventListener('change', clearNotice);
+        pageSelect.addEventListener('change', clearNotice);
+    } else if (noticeEl && (!builderData.registry || builderData.registry.length === 0)) {
+        setNotice(builderData.messages.noTemplates, 'error');
     }
 
     if (runtimeVars) {

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Visit The Roastery</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-amber-50 text-gray-900">
+    <main class="max-w-4xl mx-auto px-6 py-16">
+        <header class="text-center">
+            <h1 class="text-4xl font-bold">Let's share a cup</h1>
+            <p class="mt-4 text-lg text-gray-600">Stop by our flagship cafe or reach out to plan a coffee tasting.</p>
+        </header>
+
+        <section class="mt-16 grid md:grid-cols-2 gap-10">
+            <div class="bg-white rounded-3xl shadow p-8 space-y-6">
+                <div>
+                    <h2 class="text-xl font-semibold">Cafe Hours</h2>
+                    <ul class="mt-3 text-gray-600 space-y-2">
+                        <li>Weekdays: 7am – 6pm</li>
+                        <li>Saturday: 8am – 4pm</li>
+                        <li>Sunday: 8am – 2pm</li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold">Contact</h2>
+                    <p class="mt-3 text-gray-600">hello@roasterycollective.com</p>
+                    <p class="text-gray-600">(555) 012-1990</p>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold">Address</h2>
+                    <p class="mt-3 text-gray-600">215 Bean Street<br />Portland, OR 97205</p>
+                    <a href="#map" class="mt-3 inline-flex items-center text-amber-600 font-medium hover:text-amber-700">Get Directions →</a>
+                </div>
+            </div>
+            <form class="bg-white rounded-3xl shadow p-8 space-y-6">
+                <h2 class="text-xl font-semibold">Plan A Tasting</h2>
+                <div class="grid md:grid-cols-2 gap-5">
+                    <label class="flex flex-col text-sm font-medium text-gray-700">
+                        Name
+                        <input type="text" class="mt-2 border border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="Avery" />
+                    </label>
+                    <label class="flex flex-col text-sm font-medium text-gray-700">
+                        Email
+                        <input type="email" class="mt-2 border border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="avery@example.com" />
+                    </label>
+                </div>
+                <label class="flex flex-col text-sm font-medium text-gray-700">
+                    Preferred Date
+                    <input type="date" class="mt-2 border border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                </label>
+                <label class="flex flex-col text-sm font-medium text-gray-700">
+                    Group Size
+                    <input type="number" min="1" class="mt-2 border border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="4" />
+                </label>
+                <label class="flex flex-col text-sm font-medium text-gray-700">
+                    Notes
+                    <textarea class="mt-2 border border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" rows="4" placeholder="Let us know about tasting goals or allergies."></textarea>
+                </label>
+                <button type="submit" class="inline-flex justify-center items-center px-6 py-3 bg-amber-600 text-white rounded-full font-semibold hover:bg-amber-700 transition">Book Session</button>
+            </form>
+        </section>
+
+        <section id="map" class="mt-16">
+            <div class="relative rounded-3xl overflow-hidden shadow" style="padding-top: 56.25%;">
+                <iframe class="absolute inset-0 w-full h-full" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2805.379001913315!2d-122.6806150846586!3d45.52276913722705!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDUuNTIyNywgLTEyMi42ODA2!5e0!3m2!1sen!2sus!4v1612133210000!5m2!1sen!2sus" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

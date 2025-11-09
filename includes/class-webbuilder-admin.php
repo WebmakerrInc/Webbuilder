@@ -137,6 +137,30 @@ class Webbuilder_Admin {
         );
 
         wp_enqueue_script(
+            'webbuilder-template-registry',
+            $assets_url . 'assets/js/template-selector/useTemplateRegistry.js',
+            [],
+            $this->version,
+            true
+        );
+
+        wp_enqueue_script(
+            'webbuilder-template-loader',
+            $assets_url . 'assets/js/template-selector/loadTemplates.js',
+            [ 'webbuilder-template-registry' ],
+            $this->version,
+            true
+        );
+
+        wp_enqueue_script(
+            'webbuilder-template-selector',
+            $assets_url . 'assets/js/template-selector/TemplateSelector.js',
+            [ 'webbuilder-template-loader' ],
+            $this->version,
+            true
+        );
+
+        wp_enqueue_script(
             'webbuilder-init',
             $assets_url . 'assets/js/webbuilder-init.js',
             [
@@ -146,6 +170,7 @@ class Webbuilder_Admin {
                 'grapesjs-navbar',
                 'grapesjs-component-countdown',
                 'grapesjs-style-flexbox',
+                'webbuilder-template-selector',
                 'jquery',
             ],
             $this->version,
@@ -161,11 +186,11 @@ class Webbuilder_Admin {
                 'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
                 'nonce'    => wp_create_nonce( 'webbuilder_load_template' ),
                 'pluginUrl'=> $assets_url,
-                'templates'=> $selector_data['templates'],
-                'pages'    => $selector_data['pages'],
+                'registry' => $selector_data['registry'],
                 'messages' => [
                     'loadSuccess' => __( 'Template loaded successfully.', 'webbuilder' ),
                     'loadError'   => __( 'Unable to load the selected template.', 'webbuilder' ),
+                    'noTemplates' => __( 'No templates found in the library.', 'webbuilder' ),
                 ],
             ]
         );
